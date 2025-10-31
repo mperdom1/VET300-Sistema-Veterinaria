@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<form onsubmit="sendInvoice(event)">
+<div class="mb-3">
+<label for="recipientEmail" class="form-label">Correo Electrónico del Cliente:</label>
+<input type="email" class="form-control" id="recipientEmail" placeholder="cliente@correo.com" required>
+ </div>
+    
+    <div class="alert alert-danger p-2 small">
+        ⚠️ **¡Atención!** El PDF **no se adjunta automáticamente** por seguridad. Una vez que haga clic en **'Abrir Correo'**, deberá **adjuntar manualmente** el PDF.
+    </div>
+
+<div class="mb-3">
+<label for="invoiceNotes" class="form-label">Notas Adicionales (Se incluirán en el cuerpo del correo):</label>
+<textarea class="form-control" id="invoiceNotes" rows="3" placeholder="Agrega alguna nota..."></textarea>
+ </div>
+    
+<div class="d-flex justify-content-end gap-2">
+ <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+ <button type="submit" class="btn btn-primary">
+            <i class="bi bi-box-arrow-up-right"></i> Abrir Correo
+        </button>
+ </div>
+</form>
+
+<script>
+// NOTA IMPORTANTE: Para que esta función trabaje, la página principal
+// debe cargar los datos de la factura activa en la variable global 'window.currentInvoiceData'.
+// Usamos un ejemplo para ilustrar la lógica:
+window.currentInvoiceData = window.currentInvoiceData || {
+    invoiceId: 'VET360-Ejemplo',
+    client: 'Cliente Genérico',
+    total: 100.00,
+    vet: 'Veterinario VET360'
+};
+
+
+/**
+ * FUNCIÓN MODIFICADA: Ahora usa el protocolo mailto: para abrir el cliente de correo.
+ */
+function sendInvoice(event) {
+    event.preventDefault();
+    
+    if (!window.currentInvoiceData) {
+        alert("Error: No hay datos de factura disponibles para enviar.");
+        return;
+    }
+
+    const invoice = window.currentInvoiceData;
+    const recipientEmail = document.getElementById('recipientEmail').value;
+    const notes = document.getElementById('invoiceNotes').value;
+
+    if (!recipientEmail) {
+        alert("Por favor, completa el correo del cliente.");
+        return;
+    }
+    
+    // 1. Asunto del Correo
+    const subject = encodeURIComponent(`Factura VET360 - ${invoice.invoiceId}`);
+
+    // 2. Cuerpo del Correo (Usamos las notas como base)
+    let body = notes.trim();
+    if (body === '') {
+        // Mensaje por defecto si las notas están vacías
+        body = `Estimado(a) ${invoice.client},\n\nAdjunto encontrará la Factura ${invoice.invoiceId} por los servicios prestados a su mascota, por un total de $${invoice.total.toFixed(2)}.`;
+    }
+    body += `\n\n\n[Recordatorio: Adjuntar el archivo PDF descargado antes de enviar.]`;
+
+    const bodyEncoded = encodeURIComponent(body);
+
+    // 3. Crear y abrir el enlace mailto:
+    const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${bodyEncoded}`;
+    window.location.href = mailtoLink;
+
+    // 4. Cierra el modal de Bootstrap (asumiendo que tiene el ID 'invoiceModal' o similar)
+    // Usamos 'modal' aquí para la instancia, ya que tu código original no especificaba el ID del modal.
+    const modalElement = document.querySelector('.modal.show'); // Busca el modal activo
+    if (modalElement) {
+        const invoiceModal = bootstrap.Modal.getInstance(modalElement);
+        if (invoiceModal) {
+            invoiceModal.hide();
+        }
+    }
+}
+
+// Asegúrate de incluir el CDN de Bootstrap JS en la página principal, si aún no lo tienes.
+// <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</script>
+</body>
+</html>

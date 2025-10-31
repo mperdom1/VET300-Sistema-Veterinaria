@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendar Cita - VET360</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="./assets/css/style.css"> 
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container mt-5 mb-5">
+    <div class="card container-bg p-4 p-md-5">
+        <h2 class="mb-4 text-center">Agendar Nueva Cita</h2>
+        <form id="appointment-form">
+            
+            <section class="mb-5">
+                <h3>1. Información del Paciente</h3>
+                <hr class="mt-2 mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="clientAccount" class="form-label">Cuenta del Cliente</label>
+                        <select id="clientAccount" class="form-select" required>
+                            <option selected disabled value="">Seleccionar una cuenta...</option>
+                            <option value="Michelle Perdomo">Michelle Perdomo</option>
+                            <option value="Juan Pérez">Juan Pérez</option>
+                            <option value="Ana Rodríguez">Ana Rodríguez</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="petName" class="form-label">Paciente (Mascota)</label>
+                        <select id="petName" class="form-select" required>
+                            <option selected disabled value="">Seleccionar una mascota...</option>
+                            <option value="Firulais">Firulais (Perro)</option>
+                            <option value="Mishifu">Mishifu (Gato)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-4">
+                <h3>2. Detalles de la Cita</h3>
+                <hr class="mt-2 mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="appointmentDate" class="form-label">Fecha de la Cita</label>
+                        <input type="date" class="form-control" id="appointmentDate" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="appointmentTime" class="form-label">Hora Disponible</label>
+                        <select id="appointmentTime" class="form-select" required>
+                            <option selected disabled value="">Seleccionar hora...</option>
+                            <option>09:00 AM</option>
+                            <option>10:00 AM</option>
+                            <option>11:00 AM</option>
+                            <option>02:00 PM</option>
+                            <option>03:00 PM</option>
+                            <option>04:00 PM</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="serviceType" class="form-label">Tipo de Servicio</label>
+                        <select id="serviceType" class="form-select">
+                            <option value="Consulta General">Consulta General</option>
+                            <option value="Vacunación">Vacunación</option>
+                            <option value="Grooming">Grooming (Peluquería)</option>
+                            <option value="Cirugía">Cirugía</option>
+                            <option value="Emergencia">Emergencia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="vetAssigned" class="form-label">Veterinario Asignado</label>
+                        <select id="vetAssigned" class="form-select">
+                            <option value="Dr. Carlos Rivera">Dr. Carlos Rivera</option>
+                            <option value="Dra. Elena Solís">Dra. Elena Solís</option>
+                            <option value="Cualquiera disponible">Cualquiera disponible</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="appointmentNotes" class="form-label">Motivo o Notas Adicionales</label>
+                        <textarea class="form-control" id="appointmentNotes" rows="3" placeholder="Ej: Mi perro no ha querido comer y está decaído..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <div class="d-flex justify-content-end gap-2 mt-5">
+                <a href="dashboard.html" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Confirmar Cita</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="vetToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
+        <div class="toast-header">
+            <span class="me-2 fs-5" id="toastIcon">🐾</span> 
+            <strong class="me-auto text-dark" id="toastTitle">VET360 - Mensaje</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody">
+            Mensaje de prueba.
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
+
+
+<script>
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com", 
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(); 
+    const auth = firebase.auth(); // Inicializamos Auth
+    
+    let vetToast;
+
+    // Función que muestra la notificación Toast
+    function showToast(title, body, icon = '🐾') {
+        const vetToastEl = document.getElementById('vetToast');
+        
+        if (!vetToast) {
+            vetToast = new bootstrap.Toast(vetToastEl);
+        }
+
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastIcon').textContent = icon;
+        document.getElementById('toastBody').textContent = body;
+        vetToast.show();
+    }
+
+    // Inicialización de DOM y Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        const vetToastEl = document.getElementById('vetToast');
+        vetToast = new bootstrap.Toast(vetToastEl);
+
+        // Cargar Navbar (asumiendo que tienes un navbar.html)
+        fetch('navbar.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+                // Configurar la fecha mínima del input a hoy
+                document.getElementById('appointmentDate').min = new Date().toISOString().split('T')[0];
+            })
+            .catch(() => {
+                console.warn('Advertencia: navbar.html no se pudo cargar. Esto es común al abrir con file:///');
+            });
+            
+        // 🛑 Manejador de Eventos del Formulario 🛑
+        document.getElementById('appointment-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Detiene la recarga de la página
+
+            // 1. Obtener valores
+            const client = document.getElementById('clientAccount').value;
+            const pet = document.getElementById('petName').value;
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+            const service = document.getElementById('serviceType').value;
+            const vet = document.getElementById('vetAssigned').value;
+            const notes = document.getElementById('appointmentNotes').value;
+
+            // 2. Validación
+            if (!client || !pet || !time || !date || client === "" || pet === "" || time === "" || date === "") {
+                showToast('¡Error de Validación!', 'Por favor, selecciona Cliente, Mascota, Fecha y Hora.', '❌');
+                return;
+            }
+
+            const newAppointment = {
+                client, 
+                pet, 
+                date, 
+                time, 
+                service, 
+                vet, 
+                notes, 
+                status: 'Agendada', 
+                timestamp: Date.now(),
+                // Si hay un usuario logueado, guarda su ID (UID)
+                bookedBy: auth.currentUser ? auth.currentUser.uid : 'Anonimo' 
+            };
+
+            // 3. Guardar en Firebase Realtime Database
+            database.ref('appointments').push(newAppointment)
+                .then(() => {
+                    showToast('¡Cita Agendada!', `Cita para ${pet} con ${vet} el ${date} confirmada.`, '✅');
+                    e.target.reset(); 
+                    // Redirigir al calendario después de un breve retraso
+                    setTimeout(() => { window.location.href = 'calendario_citas.html'; }, 1500);
+                })
+                .catch((error) => {
+                    console.error("Firebase Error:", error);
+                    // Manejo específico si es un error de PERMISO DENEGADO
+                    if (error.code === 'PERMISSION_DENIED') {
+                         showToast('Acceso Denegado', 'Debes iniciar sesión para agendar citas (Error de Reglas).', '🔒');
+                    } else {
+                         showToast('Error de Conexión', 'No se pudo guardar la cita. Revisa tu consola (F12) para más detalles.', '🚨');
+                    }
+                });
+        });
+    }); 
+</script>
+
+</body>
+</html>

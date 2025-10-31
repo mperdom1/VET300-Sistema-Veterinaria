@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Servicios - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/Style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="bi me-2" id="toastIcon"></i>
+            <strong class="me-auto" id="toastTitle">VET360</strong>
+            <small>Ahora</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody">Mensaje de prueba.</div>
+    </div>
+</div>
+
+<div class="container mt-5 mb-5">
+    <div class="card container-bg p-4 p-md-5">
+        <h2 class="mb-4 text-center text-primary"><i class="bi bi-hospital"></i> Gestión de Servicios Veterinarios</h2>
+        
+        <div class="mb-5 p-4 border rounded shadow-sm">
+            <h4 class="text-secondary">Añadir Nuevo Servicio</h4>
+            <form id="addServiceForm" class="row g-3">
+                <div class="col-md-5">
+                    <label for="serviceName" class="form-label">Nombre del Servicio <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="serviceName" placeholder="Ej: Chequeo Geriátrico" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="serviceCost" class="form-label">Costo ($)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="serviceCost" placeholder="50.00" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <label for="serviceDescription" class="form-label">Descripción</label>
+                    <textarea class="form-control" id="serviceDescription" rows="1" placeholder="Detalles de la prestación..."></textarea>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100" id="addButton"><i class="bi bi-plus-circle"></i> Agregar</button>
+                </div>
+            </form>
+        </div>
+
+        <h4 class="mb-3 text-secondary">Nuestros Servicios</h4>
+        
+        <div id="services-grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            </div>
+
+        <div id="loadingMessage" class="text-center mt-5 p-4">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <h4>Cargando servicios...</h4>
+            <p class="text-muted">Conectando con la base de datos.</p>
+        </div>
+        
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
+
+
+<script>
+    // 🛑 REEMPLAZA ESTO CON TU CONFIGURACIÓN REAL DE FIREBASE 🛑
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+    
+    // --- FUNCIONES DE TOAST ---
+    function showVetToast(title, message, type = 'success') {
+        const toastEl = document.getElementById('liveToast');
+        const toastTitleEl = document.getElementById('toastTitle');
+        const toastBodyEl = document.getElementById('toastBody');
+        const toastIconEl = document.getElementById('toastIcon');
+
+        let iconClass = 'bi-info-circle-fill text-info';
+        if (type === 'success') {
+            iconClass = 'bi-check-circle-fill text-success';
+        } else if (type === 'danger') {
+            iconClass = 'bi-exclamation-triangle-fill text-danger';
+        }
+
+        toastEl.className = 'toast border border-' + type;
+        toastIconEl.className = 'bi me-2 ' + iconClass;
+        toastTitleEl.textContent = title;
+        toastBodyEl.textContent = message;
+
+        new bootstrap.Toast(toastEl).show();
+    }
+    
+    // --- FUNCIONES DE FIREBASE ---
+    
+    /**
+     * Carga y suscribe los servicios de la base de datos en tiempo real.
+     */
+    function loadServices() {
+        // Chequeo de autenticación para seguridad (aunque ya se hace en DOMContentLoaded, es buena práctica)
+        if (!auth.currentUser) return; 
+
+        const servicesRef = database.ref('services');
+        const loadingMessage = document.getElementById('loadingMessage');
+        
+        loadingMessage.style.display = 'block'; // Mostrar spinner
+        
+        servicesRef.on('value', (snapshot) => {
+            const services = [];
+            
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const key = childSnapshot.key;
+                    const service = childSnapshot.val();
+                    services.push({ key, ...service });
+                });
+            }
+            
+            loadingMessage.style.display = 'none'; // Ocultar spinner
+            renderServices(services);
+        }, (error) => {
+            console.error("Error al cargar servicios:", error);
+            showVetToast("Error de Carga", "No se pudieron cargar los servicios. " + error.message, 'danger');
+            loadingMessage.style.display = 'block';
+            loadingMessage.innerHTML = `<h4 class="text-danger">Error de Conexión</h4><p class="text-muted">Verifique su conexión y permisos.</p>`;
+        });
+    }
+
+    /**
+     * Añade un nuevo servicio a Firebase.
+     */
+    function addService(serviceData) {
+        const user = auth.currentUser;
+        if (!user) {
+            showVetToast("Acceso Denegado", "Debes iniciar sesión para añadir servicios.", 'danger');
+            return;
+        }
+
+        const addButton = document.getElementById('addButton');
+        addButton.disabled = true;
+        addButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Agregando...`;
+
+        database.ref('services').push({
+            ...serviceData,
+            createdBy: user.email,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        })
+        .then(() => {
+            showVetToast("Éxito", `Servicio "${serviceData.name}" agregado.`, 'success');
+            document.getElementById('addServiceForm').reset();
+        })
+        .catch(error => {
+            console.error("Error al guardar:", error);
+            showVetToast("Error de Firebase", `No se pudo guardar el servicio: ${error.message}`, 'danger');
+        })
+        .finally(() => {
+            addButton.disabled = false;
+            addButton.innerHTML = `<i class="bi bi-plus-circle"></i> Agregar`;
+        });
+    }
+
+    /**
+     * Elimina un servicio de Firebase.
+     */
+    window.deleteService = function(key, name) {
+        if (!auth.currentUser) {
+            showVetToast("Acceso Denegado", "Debes iniciar sesión para eliminar servicios.", 'danger');
+            return;
+        }
+        
+        if (!confirm(`¿Está seguro de que desea eliminar el servicio "${name}"? Esta acción es irreversible.`)) {
+            return;
+        }
+        
+        database.ref('services/' + key).remove()
+        .then(() => {
+            showVetToast("Eliminado", `Servicio "${name}" eliminado correctamente.`, 'success');
+        })
+        .catch(error => {
+            console.error("Error al eliminar:", error);
+            showVetToast("Error de Firebase", `No se pudo eliminar el servicio: ${error.message}`, 'danger');
+        });
+    }
+
+    // --- FUNCIONES DE RENDERIZADO DOM ---
+    
+    /**
+     * Renderiza la lista de servicios en formato de cards.
+     */
+    function renderServices(services) {
+        const servicesGrid = document.getElementById('services-grid');
+        servicesGrid.innerHTML = ''; // Limpiar el contenido actual
+        
+        if (services.length === 0) {
+            servicesGrid.innerHTML = `
+                <div class="col-12 text-center p-5">
+                    <i class="bi bi-tag-fill text-muted" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Aún no hay servicios definidos.</h4>
+                    <p class="text-muted">Usa el formulario de arriba para empezar a crear tu catálogo.</p>
+                </div>
+            `;
+            return;
+        }
+
+        services.forEach(service => {
+            const costText = service.cost ? `$${parseFloat(service.cost).toFixed(2)}` : 'N/A';
+            
+            const colDiv = document.createElement('div');
+            colDiv.className = 'col';
+            colDiv.innerHTML = `
+                <div class="card text-center h-100 shadow-sm border-primary">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-primary"><i class="bi bi-tag-fill me-2"></i>${service.name}</h5>
+                        <p class="card-text text-muted flex-grow-1">${service.description || 'Sin descripción.'}</p>
+                        <p class="card-text fw-bold mb-3 border-top pt-2">Costo: ${costText}</p>
+                        <div class="d-flex justify-content-center gap-2 mt-auto">
+                            <button class="btn btn-danger btn-sm" title="Eliminar Servicio" onclick="deleteService('${service.key}', '${service.name}')">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            servicesGrid.appendChild(colDiv);
+        });
+    }
+    
+    // --- MANEJO DE EVENTOS ---
+
+    document.getElementById('addServiceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const nameInput = document.getElementById('serviceName');
+        const costInput = document.getElementById('serviceCost');
+        const descInput = document.getElementById('serviceDescription');
+
+        const serviceName = nameInput.value.trim();
+        const serviceCost = parseFloat(costInput.value) || null;
+        const serviceDescription = descInput.value.trim();
+
+        if (serviceName === "") {
+            showVetToast("Validación", "El nombre del servicio es obligatorio.", 'danger');
+            return;
+        }
+
+        const newServiceData = {
+            name: serviceName,
+            cost: serviceCost,
+            description: serviceDescription
+        };
+
+        addService(newServiceData);
+    });
+
+    // --- INICIALIZACIÓN ---
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar Navbar
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            });
+
+        // Autenticación: solo carga los servicios si hay un usuario logueado.
+        auth.onAuthStateChanged(user => {
+            const loadingMessage = document.getElementById('loadingMessage');
+            if (user) {
+                loadServices();
+            } else {
+                loadingMessage.style.display = 'block';
+                loadingMessage.innerHTML = `
+                    <h4 class="text-danger">Acceso Restringido</h4>
+                    <p class="text-muted">Por favor, inicie sesión para gestionar los servicios.</p>
+                `;
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

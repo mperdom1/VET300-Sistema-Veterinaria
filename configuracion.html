@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">⚙️ Configuración del Sistema</h1>
+                    <p class="text-muted">Ajustes y configuraciones de VET360</p>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="saveAllSettings()">
+                        <i class="bi bi-check-circle me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Menú de Configuración -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Categorías</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
+                        <i class="bi bi-gear me-2"></i> General
+                    </a>
+                    <a href="#usuarios" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="bi bi-people me-2"></i> Usuarios
+                    </a>
+                    <a href="#sistema" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="bi bi-cpu me-2"></i> Sistema
+                    </a>
+                    <a href="#notificaciones" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="bi bi-bell me-2"></i> Notificaciones
+                    </a>
+                    <a href="#seguridad" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="bi bi-shield-lock me-2"></i> Seguridad
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- Configuración General -->
+                <div class="tab-pane fade show active" id="general">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">🏢 Configuración General</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="clinicName" class="form-label">Nombre de la Clínica</label>
+                                        <input type="text" class="form-control" id="clinicName" value="VET360 - Clínica Veterinaria">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="clinicPhone" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="clinicPhone" value="+1 (555) 123-4567">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="clinicAddress" class="form-label">Dirección</label>
+                                <textarea class="form-control" id="clinicAddress" rows="2">123 Calle Principal, Ciudad, Estado 12345</textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="timezone" class="form-label">Zona Horaria</label>
+                                        <select class="form-select" id="timezone">
+                                            <option value="America/Mexico_City" selected>México (GMT-6)</option>
+                                            <option value="America/New_York">Nueva York (GMT-5)</option>
+                                            <option value="America/Los_Angeles">Los Ángeles (GMT-8)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="currency" class="form-label">Moneda</label>
+                                        <select class="form-select" id="currency">
+                                            <option value="MXN" selected>Peso Mexicano (MXN)</option>
+                                            <option value="USD">Dólar Americano (USD)</option>
+                                            <option value="EUR">Euro (EUR)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Usuarios -->
+                <div class="tab-pane fade" id="usuarios">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">👥 Configuración de Usuarios</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="allowSelfRegistration">
+                                <label class="form-check-label" for="allowSelfRegistration">
+                                    Permitir auto-registro de usuarios
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="requireEmailVerification" checked>
+                                <label class="form-check-label" for="requireEmailVerification">
+                                    Requerir verificación de correo electrónico
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="passwordPolicy" class="form-label">Política de Contraseñas</label>
+                                <select class="form-select" id="passwordPolicy">
+                                    <option value="basic">Básica (6 caracteres mínimo)</option>
+                                    <option value="medium" selected>Media (8 caracteres, mayús/minús)</option>
+                                    <option value="strong">Fuerte (12 caracteres, números, símbolos)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sessionTimeout" class="form-label">Tiempo de sesión (minutos)</label>
+                                <input type="number" class="form-control" id="sessionTimeout" value="120" min="30" max="480">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración del Sistema -->
+                <div class="tab-pane fade" id="sistema">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">🖥️ Configuración del Sistema</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                                <label class="form-check-label" for="maintenanceMode">
+                                    Modo de mantenimiento
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="debugMode">
+                                <label class="form-check-label" for="debugMode">
+                                    Modo de depuración (Debug)
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="backupFrequency" class="form-label">Frecuencia de Respaldo</label>
+                                <select class="form-select" id="backupFrequency">
+                                    <option value="daily" selected>Diario</option>
+                                    <option value="weekly">Semanal</option>
+                                    <option value="monthly">Mensual</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="logLevel" class="form-label">Nivel de Logs</label>
+                                <select class="form-select" id="logLevel">
+                                    <option value="error">Solo Errores</option>
+                                    <option value="warning" selected>Advertencias y Errores</option>
+                                    <option value="info">Información Completa</option>
+                                    <option value="debug">Debug Completo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Notificaciones -->
+                <div class="tab-pane fade" id="notificaciones">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">🔔 Configuración de Notificaciones</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                <label class="form-check-label" for="emailNotifications">
+                                    Notificaciones por correo electrónico
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                <label class="form-check-label" for="smsNotifications">
+                                    Notificaciones por SMS
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="appointmentReminders" checked>
+                                <label class="form-check-label" for="appointmentReminders">
+                                    Recordatorios de citas
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reminderHours" class="form-label">Horas antes de la cita para recordatorio</label>
+                                <input type="number" class="form-control" id="reminderHours" value="24" min="1" max="168">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Seguridad -->
+                <div class="tab-pane fade" id="seguridad">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">🔒 Configuración de Seguridad</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+                                <label class="form-check-label" for="twoFactorAuth">
+                                    Autenticación de dos factores (2FA)
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="loginAttemptLimit" checked>
+                                <label class="form-check-label" for="loginAttemptLimit">
+                                    Límite de intentos de inicio de sesión
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="maxLoginAttempts" class="form-label">Máximo intentos de login</label>
+                                <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="3" max="10">
+                            </div>
+                            <div class="mb-3">
+                                <label for="lockoutDuration" class="form-label">Duración de bloqueo (minutos)</label>
+                                <input type="number" class="form-control" id="lockoutDuration" value="15" min="5" max="60">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Cargar navbar
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+    });
+
+    // Función para guardar configuraciones
+    function saveAllSettings() {
+        // Recopilar todas las configuraciones
+        const settings = {
+            general: {
+                clinicName: document.getElementById('clinicName').value,
+                clinicPhone: document.getElementById('clinicPhone').value,
+                clinicAddress: document.getElementById('clinicAddress').value,
+                timezone: document.getElementById('timezone').value,
+                currency: document.getElementById('currency').value
+            },
+            users: {
+                allowSelfRegistration: document.getElementById('allowSelfRegistration').checked,
+                requireEmailVerification: document.getElementById('requireEmailVerification').checked,
+                passwordPolicy: document.getElementById('passwordPolicy').value,
+                sessionTimeout: document.getElementById('sessionTimeout').value
+            },
+            system: {
+                maintenanceMode: document.getElementById('maintenanceMode').checked,
+                debugMode: document.getElementById('debugMode').checked,
+                backupFrequency: document.getElementById('backupFrequency').value,
+                logLevel: document.getElementById('logLevel').value
+            },
+            notifications: {
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                smsNotifications: document.getElementById('smsNotifications').checked,
+                appointmentReminders: document.getElementById('appointmentReminders').checked,
+                reminderHours: document.getElementById('reminderHours').value
+            },
+            security: {
+                twoFactorAuth: document.getElementById('twoFactorAuth').checked,
+                loginAttemptLimit: document.getElementById('loginAttemptLimit').checked,
+                maxLoginAttempts: document.getElementById('maxLoginAttempts').value,
+                lockoutDuration: document.getElementById('lockoutDuration').value
+            }
+        };
+
+        // Simular guardado (en desarrollo real se enviaría a Firebase)
+        console.log('Configuraciones guardadas:', settings);
+        
+        // Mostrar mensaje de éxito
+        const successAlert = document.createElement('div');
+        successAlert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        successAlert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+        successAlert.innerHTML = `
+            <i class="bi bi-check-circle me-2"></i>
+            <strong>¡Configuraciones guardadas!</strong><br>
+            Los cambios han sido aplicados exitosamente.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(successAlert);
+        
+        // Auto remover después de 3 segundos
+        setTimeout(() => {
+            if (successAlert.parentNode) {
+                successAlert.remove();
+            }
+        }, 3000);
+    }
+
+    // Función para resetear configuraciones
+    function resetToDefaults() {
+        if (confirm('¿Estás seguro de que quieres restaurar las configuraciones predeterminadas?')) {
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>

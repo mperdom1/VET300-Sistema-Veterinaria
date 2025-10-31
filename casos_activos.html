@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casos Activos - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<!-- Verificación de permisos -->
+<div id="authLoading" class="text-center mt-5 p-5">
+    <div class="spinner-border text-primary mb-3 large-spinner" role="status">
+        <span class="visually-hidden">Verificando permisos...</span>
+    </div>
+    <h4 class="text-primary">Verificando Acceso Médico</h4>
+    <p class="text-muted">Solo veterinarios pueden acceder a esta sección.</p>
+</div>
+
+<!-- Contenido principal -->
+<div id="mainContent" class="hidden-content">
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h1 class="mb-1">
+                                    <i class="bi bi-clipboard-pulse"></i>
+                                    Casos Médicos Activos
+                                </h1>
+                                <p class="mb-0 opacity-75">Gestión de casos clínicos en curso</p>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-light btn-lg" onclick="window.location.href='Nuevo Caso.html'">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Nuevo Caso
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros y búsqueda -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchCases" placeholder="Buscar por paciente, propietario o diagnóstico...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterStatus" title="Filtrar por estado">
+                    <option value="">Todos los estados</option>
+                    <option value="nuevo">Nuevo</option>
+                    <option value="en_tratamiento">En Tratamiento</option>
+                    <option value="seguimiento">Seguimiento</option>
+                    <option value="critico">Crítico</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterPriority" title="Filtrar por prioridad">
+                    <option value="">Todas las prioridades</option>
+                    <option value="alta">Alta</option>
+                    <option value="media">Media</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Lista de casos -->
+        <div class="row" id="casesContainer">
+            <!-- Los casos se cargan dinámicamente -->
+        </div>
+
+        <!-- Estado vacío -->
+        <div id="emptyCases" class="text-center py-5 d-none">
+            <i class="bi bi-clipboard text-muted large-icon"></i>
+            <h3 class="text-muted mt-3">No hay casos activos</h3>
+            <p class="text-muted">Cuando tengas casos médicos en curso, aparecerán aquí.</p>
+            <button class="btn btn-primary btn-lg" onclick="window.location.href='Nuevo Caso.html'">
+                <i class="bi bi-plus-circle"></i>
+                Crear Primer Caso
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ver detalles del caso -->
+<div class="modal fade" id="caseDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-clipboard-data"></i>
+                    Detalles del Caso
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="caseDetailContent">
+                <!-- Contenido cargado dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="editCaseBtn">
+                    <i class="bi bi-pencil"></i>
+                    Editar Caso
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK v9 (modular) -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, collection, query, where, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Elementos del DOM
+    const mainContent = document.getElementById('mainContent');
+    const authLoading = document.getElementById('authLoading');
+    const casesContainer = document.getElementById('casesContainer');
+    const emptyCases = document.getElementById('emptyCases');
+    const searchInput = document.getElementById('searchCases');
+    const statusFilter = document.getElementById('filterStatus');
+    const priorityFilter = document.getElementById('filterPriority');
+
+    // Datos de casos simulados (en producción vendrían de Firestore)
+    const mockCases = [
+        {
+            id: 'CASO001',
+            patientName: 'Max',
+            patientType: 'Perro - Golden Retriever',
+            ownerName: 'María González',
+            diagnosis: 'Gastroenteritis aguda',
+            status: 'en_tratamiento',
+            priority: 'media',
+            dateCreated: '2025-10-28',
+            lastUpdate: '2025-10-31',
+            veterinarian: 'Dr. Carlos Mendoza',
+            symptoms: ['Vómitos', 'Diarrea', 'Letargo'],
+            treatment: 'Hidratación IV, antibióticos',
+            notes: 'Paciente responde bien al tratamiento. Continuar con medicación.'
+        },
+        {
+            id: 'CASO002',
+            patientName: 'Luna',
+            patientType: 'Gata - Persa',
+            ownerName: 'José Ramírez',
+            diagnosis: 'Fractura de fémur',
+            status: 'critico',
+            priority: 'alta',
+            dateCreated: '2025-10-30',
+            lastUpdate: '2025-10-31',
+            veterinarian: 'Dr. Ana Ruiz',
+            symptoms: ['Cojera severa', 'Dolor', 'Inflamación'],
+            treatment: 'Cirugía programada para mañana',
+            notes: 'Requiere cirugía urgente. Preparar para anestesia.'
+        },
+        {
+            id: 'CASO003',
+            patientName: 'Rocky',
+            patientType: 'Perro - Pastor Alemán',
+            ownerName: 'Carmen Jiménez',
+            diagnosis: 'Revisión post-cirugía',
+            status: 'seguimiento',
+            priority: 'baja',
+            dateCreated: '2025-10-25',
+            lastUpdate: '2025-10-30',
+            veterinarian: 'Dr. Luis Herrera',
+            symptoms: ['Recuperación normal'],
+            treatment: 'Control de herida, antibióticos',
+            notes: 'Evolución favorable. Próxima cita en una semana.'
+        }
+    ];
+
+    // Verificar permisos del usuario
+    async function checkVeterinaryAccess(uid) {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                return userData.role === 'veterinario' || userData.role === 'admin' || userData.role === 'asistente';
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking access:', error);
+            return false;
+        }
+    }
+
+    // Mostrar acceso denegado
+    function showAccessDenied() {
+        authLoading.innerHTML = `
+            <i class="bi bi-shield-x text-danger mb-3 large-icon"></i>
+            <h4 class="text-danger">Acceso Restringido</h4>
+            <p class="text-muted">Solo el personal médico puede acceder a los casos clínicos.</p>
+            <a href="dashboard.html" class="btn btn-primary">Volver al Dashboard</a>
+        `;
+    }
+
+    // Obtener color según estado
+    function getStatusColor(status) {
+        const colors = {
+            'nuevo': 'primary',
+            'en_tratamiento': 'warning',
+            'seguimiento': 'info',
+            'critico': 'danger'
+        };
+        return colors[status] || 'secondary';
+    }
+
+    // Obtener color según prioridad
+    function getPriorityColor(priority) {
+        const colors = {
+            'alta': 'danger',
+            'media': 'warning',
+            'baja': 'success'
+        };
+        return colors[priority] || 'secondary';
+    }
+
+    // Formatear fecha
+    function formatDate(dateString) {
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return new Date(dateString).toLocaleDateString('es-ES', options);
+    }
+
+    // Crear card de caso
+    function createCaseCard(caseData) {
+        const statusColor = getStatusColor(caseData.status);
+        const priorityColor = getPriorityColor(caseData.priority);
+        
+        return `
+            <div class="col-md-6 col-lg-4 mb-4 case-card" data-case-id="${caseData.id}">
+                <div class="card border-${statusColor} shadow-sm h-100">
+                    <div class="card-header bg-${statusColor} text-white">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-tag-fill"></i>
+                                    ${caseData.id}
+                                </h6>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-${priorityColor}">
+                                    ${caseData.priority.toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col">
+                                <h5 class="card-title text-${statusColor}">
+                                    <i class="bi bi-heart"></i>
+                                    ${caseData.patientName}
+                                </h5>
+                                <p class="text-muted small mb-1">${caseData.patientType}</p>
+                                <p class="text-muted small">
+                                    <i class="bi bi-person"></i>
+                                    ${caseData.ownerName}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Diagnóstico:</strong>
+                            <p class="mb-1">${caseData.diagnosis}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Estado:</strong>
+                            <span class="badge bg-${statusColor} ms-1">
+                                ${caseData.status.replace('_', ' ').toUpperCase()}
+                            </span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i>
+                                Última actualización: ${formatDate(caseData.lastUpdate)}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="row">
+                            <div class="col">
+                                <button class="btn btn-sm btn-outline-primary w-100" onclick="showCaseDetail('${caseData.id}')">
+                                    <i class="bi bi-eye"></i>
+                                    Ver Detalles
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button class="btn btn-sm btn-outline-success w-100" onclick="editCase('${caseData.id}')">
+                                    <i class="bi bi-pencil"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Mostrar casos
+    function displayCases(cases) {
+        if (cases.length === 0) {
+            casesContainer.style.display = 'none';
+            emptyCases.classList.remove('d-none');
+        } else {
+            casesContainer.style.display = 'block';
+            emptyCases.classList.add('d-none');
+            casesContainer.innerHTML = cases.map(createCaseCard).join('');
+        }
+    }
+
+    // Filtrar casos
+    function filterCases() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusFilter = document.getElementById('filterStatus').value;
+        const priorityFilter = document.getElementById('filterPriority').value;
+        
+        let filteredCases = mockCases.filter(caseData => {
+            const matchesSearch = 
+                caseData.patientName.toLowerCase().includes(searchTerm) ||
+                caseData.ownerName.toLowerCase().includes(searchTerm) ||
+                caseData.diagnosis.toLowerCase().includes(searchTerm);
+            
+            const matchesStatus = !statusFilter || caseData.status === statusFilter;
+            const matchesPriority = !priorityFilter || caseData.priority === priorityFilter;
+            
+            return matchesSearch && matchesStatus && matchesPriority;
+        });
+        
+        displayCases(filteredCases);
+    }
+
+    // Mostrar detalles del caso
+    window.showCaseDetail = function(caseId) {
+        const caseData = mockCases.find(c => c.id === caseId);
+        if (!caseData) return;
+        
+        const modalContent = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary">Información del Paciente</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>Nombre:</strong></td><td>${caseData.patientName}</td></tr>
+                        <tr><td><strong>Tipo:</strong></td><td>${caseData.patientType}</td></tr>
+                        <tr><td><strong>Propietario:</strong></td><td>${caseData.ownerName}</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-primary">Información del Caso</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>ID:</strong></td><td>${caseData.id}</td></tr>
+                        <tr><td><strong>Estado:</strong></td><td><span class="badge bg-${getStatusColor(caseData.status)}">${caseData.status}</span></td></tr>
+                        <tr><td><strong>Prioridad:</strong></td><td><span class="badge bg-${getPriorityColor(caseData.priority)}">${caseData.priority}</span></td></tr>
+                        <tr><td><strong>Veterinario:</strong></td><td>${caseData.veterinarian}</td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <div class="row">
+                <div class="col-12">
+                    <h6 class="text-primary">Diagnóstico</h6>
+                    <p class="bg-light p-3 rounded">${caseData.diagnosis}</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary">Síntomas</h6>
+                    <ul class="list-group list-group-flush">
+                        ${caseData.symptoms.map(symptom => `<li class="list-group-item">${symptom}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-primary">Tratamiento</h6>
+                    <p class="bg-light p-3 rounded">${caseData.treatment}</p>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6 class="text-primary">Notas del Veterinario</h6>
+                    <p class="bg-warning bg-opacity-10 p-3 rounded border-start border-warning border-4">
+                        ${caseData.notes}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar-plus"></i>
+                        Creado: ${formatDate(caseData.dateCreated)}
+                    </small>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i>
+                        Actualizado: ${formatDate(caseData.lastUpdate)}
+                    </small>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('caseDetailContent').innerHTML = modalContent;
+        new bootstrap.Modal(document.getElementById('caseDetailModal')).show();
+    };
+
+    // Editar caso
+    window.editCase = function(caseId) {
+        alert(`🔧 Funcionalidad en desarrollo: Editar caso ${caseId}`);
+        // Aquí irían a la página de edición
+    };
+
+    // Event listeners para filtros
+    searchInput.addEventListener('input', filterCases);
+    statusFilter.addEventListener('change', filterCases);
+    priorityFilter.addEventListener('change', filterCases);
+
+    // Cargar navbar
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+    });
+
+    // Autenticación y autorización
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const hasAccess = await checkVeterinaryAccess(user.uid);
+            
+            if (hasAccess) {
+                // Mostrar contenido y cargar casos
+                mainContent.classList.remove('hidden-content');
+                authLoading.style.display = 'none';
+                displayCases(mockCases);
+            } else {
+                showAccessDenied();
+            }
+        } else {
+            authLoading.innerHTML = `
+                <i class="bi bi-lock-fill text-danger mb-3 large-icon"></i>
+                <h4 class="text-danger">Acceso Denegado</h4>
+                <p class="text-muted">Necesitas iniciar sesión. Redirigiendo...</p>
+            `;
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
+    });
+</script>
+
+</body>
+</html>

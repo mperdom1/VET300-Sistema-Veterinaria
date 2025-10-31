@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">📊 Reportes y Estadísticas</h1>
+                    <p class="text-muted">Análisis y métricas del sistema VET360</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Principales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill text-primary large-icon"></i>
+                    <h3 class="mt-3">156</h3>
+                    <p class="text-muted">Total Pacientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check-fill text-success large-icon"></i>
+                    <h3 class="mt-3">23</h3>
+                    <p class="text-muted">Citas Hoy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-dollar text-warning large-icon"></i>
+                    <h3 class="mt-3">$12,450</h3>
+                    <p class="text-muted">Ingresos Mes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-heart-pulse-fill text-info large-icon"></i>
+                    <h3 class="mt-3">89%</h3>
+                    <p class="text-muted">Satisfacción</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos y Reportes -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">📈 Ingresos Mensuales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-5">
+                        <i class="bi bi-bar-chart-line text-muted large-report-icon"></i>
+                        <p class="text-muted mt-3">Gráfico de ingresos por mes</p>
+                        <small class="text-muted">Funcionalidad en desarrollo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">🏆 Top Servicios</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Consulta General
+                            <span class="badge bg-primary rounded-pill">45</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Vacunación
+                            <span class="badge bg-success rounded-pill">32</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Cirugía Menor
+                            <span class="badge bg-warning rounded-pill">18</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Desparasitación
+                            <span class="badge bg-info rounded-pill">25</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reportes Disponibles -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">📋 Reportes Disponibles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mb-3 report-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-file-earmark-medical text-primary mb-3 medium-report-icon"></i>
+                                    <h6>Reporte de Pacientes</h6>
+                                    <p class="text-muted small">Listado completo de pacientes</p>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="generateReport('pacientes')">
+                                        <i class="bi bi-download me-1"></i> Generar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card mb-3 report-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-event text-success mb-3 medium-report-icon"></i>
+                                    <h6>Reporte de Citas</h6>
+                                    <p class="text-muted small">Citas por período</p>
+                                    <button class="btn btn-sm btn-outline-success" onclick="generateReport('citas')">
+                                        <i class="bi bi-download me-1"></i> Generar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card mb-3 report-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-receipt text-warning mb-3 medium-report-icon"></i>
+                                    <h6>Reporte Financiero</h6>
+                                    <p class="text-muted small">Ingresos y gastos</p>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="generateReport('financiero')">
+                                        <i class="bi bi-download me-1"></i> Generar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Cargar navbar
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+    });
+
+    // Función para generar reportes
+    function generateReport(tipo) {
+        // Mostrar mensaje de desarrollo
+        const messages = {
+            'pacientes': 'Generando reporte de pacientes...',
+            'citas': 'Generando reporte de citas...',
+            'financiero': 'Generando reporte financiero...'
+        };
+        
+        alert(`🔧 ${messages[tipo]}\n\nFuncionalidad en desarrollo. El reporte se descargará próximamente.`);
+    }
+</script>
+
+</body>
+</html>

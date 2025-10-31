@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Facturas - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container mt-5 mb-5">
+    <div class="card container-bg p-4 p-md-5">
+        <h2 class="mb-4 text-center">Historial de Facturas Emitidas 📊</h2>
+        
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por cliente, mascota o # factura...">
+            </div>
+            <div class="col-md-3 mb-3">
+                <select id="vetFilter" class="form-select">
+                    <option value="">Filtrar por Veterinario (Todos)</option>
+                    </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <button class="btn btn-secondary w-100" onclick="applyFilters()"><i class="bi bi-funnel"></i> Aplicar Filtros</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th># Factura</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Mascota</th>
+                        <th>Veterinario</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Detalles</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center text-muted p-5">Cargando historial...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="crear_factura.html" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Nueva Factura</a>
+        </div>
+        
+    </div>
+</div>
+
+<div class="modal fade" id="invoiceDetailsModal" tabindex="-1" aria-labelledby="invoiceDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="invoiceDetailsModalLabel">Detalle de Factura <span id="modalInvoiceId"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Cliente:</strong> <span id="modalClient"></span></p>
+                <p><strong>Mascota:</strong> <span id="modalPet"></span></p>
+                <p><strong>Veterinario:</strong> <span id="modalVet"></span></p>
+                <hr>
+                <h6>Servicios:</h6>
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr class="table-light"><th>Servicio</th><th class="text-end">Precio</th></tr>
+                    </thead>
+                    <tbody id="modalItemsBody">
+                        </tbody>
+                    <tfoot>
+                        <tr class="fw-bold"><td>TOTAL</td><td class="text-end" id="modalTotal"></td></tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
+
+
+<script>
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // Variables globales
+    let allInvoices = []; // Almacena todas las facturas cargadas de Firebase
+    const VETS = [
+        { name: 'Dr. Alejandro Soto' }, 
+        { name: 'Dra. Laura Vega' }, 
+        { name: 'Téc. Karina Ríos' }
+    ];
+
+    // --- Inicialización ---
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar Navbar
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            });
+            
+        loadVetFilters();
+        loadInvoices();
+        
+        // Asignar el evento para la búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+    });
+    
+    // --------------------------------------------------------
+    // FUNCIONES DE CARGA Y VISUALIZACIÓN
+    // --------------------------------------------------------
+    
+    function loadVetFilters() {
+        const vetFilterSelect = document.getElementById('vetFilter');
+        VETS.forEach(vet => {
+            const option = document.createElement('option');
+            option.value = vet.name;
+            option.textContent = vet.name;
+            vetFilterSelect.appendChild(option);
+        });
+    }
+
+    function loadInvoices() {
+        const tbody = document.getElementById('invoicesTableBody');
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-primary p-5"><span class="spinner-border spinner-border-sm me-2"></span> Cargando facturas desde Firebase...</td></tr>';
+        
+        // Escucha una sola vez el nodo 'invoices'
+        database.ref('invoices').once('value')
+            .then(snapshot => {
+                allInvoices = [];
+                snapshot.forEach(childSnapshot => {
+                    const invoice = childSnapshot.val();
+                    invoice.key = childSnapshot.key; // Guarda la clave de Firebase para referencia
+                    allInvoices.push(invoice);
+                });
+                
+                // Mostrar facturas ordenadas por fecha (más reciente primero)
+                allInvoices.sort((a, b) => b.timestamp - a.timestamp);
+                
+                renderInvoices(allInvoices);
+            })
+            .catch(error => {
+                console.error("Error al cargar las facturas:", error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger p-5"><i class="bi bi-x-octagon"></i> Error al cargar las facturas. Revisa la conexión y permisos.</td></tr>';
+            });
+    }
+    
+    function renderInvoices(invoicesToDisplay) {
+        const tbody = document.getElementById('invoicesTableBody');
+        tbody.innerHTML = ''; // Limpiar la tabla
+
+        if (invoicesToDisplay.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-warning p-5"><i class="bi bi-search"></i> No se encontraron facturas con los filtros aplicados.</td></tr>';
+            return;
+        }
+
+        invoicesToDisplay.forEach(invoice => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${invoice.invoiceId}</td>
+                <td>${invoice.date}</td>
+                <td>${invoice.client}</td>
+                <td>${invoice.pet || 'N/A'}</td>
+                <td>${invoice.vet}</td>
+                <td class="text-end fw-bold">$${invoice.total.toFixed(2)}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-info text-white" 
+                            onclick="showDetails('${invoice.key}')">
+                        <i class="bi bi-eye"></i> Ver
+                    </button>
+                </td>
+            `;
+        });
+    }
+    
+    // --------------------------------------------------------
+    // FUNCIONES DE FILTRO Y BÚSQUEDA
+    // --------------------------------------------------------
+    
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const vetFilter = document.getElementById('vetFilter').value;
+        
+        let filteredInvoices = allInvoices.filter(invoice => {
+            // 1. Filtro de Búsqueda de Texto
+            const matchesSearch = searchTerm === '' || 
+                                  invoice.invoiceId.toLowerCase().includes(searchTerm) || 
+                                  invoice.client.toLowerCase().includes(searchTerm) || 
+                                  (invoice.pet && invoice.pet.toLowerCase().includes(searchTerm));
+            
+            // 2. Filtro de Veterinario
+            const matchesVet = vetFilter === '' || invoice.vet === vetFilter;
+            
+            return matchesSearch && matchesVet;
+        });
+        
+        renderInvoices(filteredInvoices);
+    }
+    
+    // --------------------------------------------------------
+    // FUNCIÓN PARA MOSTRAR DETALLES EN MODAL
+    // --------------------------------------------------------
+    
+    window.showDetails = function(invoiceKey) {
+        const invoice = allInvoices.find(inv => inv.key === invoiceKey);
+        
+        if (!invoice) {
+            alert('Detalle de factura no encontrado.');
+            return;
+        }
+
+        // Llenar el Modal
+        document.getElementById('modalInvoiceId').textContent = invoice.invoiceId;
+        document.getElementById('modalClient').textContent = invoice.client;
+        document.getElementById('modalPet').textContent = invoice.pet || 'N/A';
+        document.getElementById('modalVet').textContent = invoice.vet;
+        document.getElementById('modalTotal').textContent = `$${invoice.total.toFixed(2)}`;
+        
+        const modalItemsBody = document.getElementById('modalItemsBody');
+        modalItemsBody.innerHTML = '';
+        
+        // Llenar la tabla de ítems del modal
+        invoice.items.forEach(item => {
+            const row = modalItemsBody.insertRow();
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td class="text-end">$${item.price.toFixed(2)}</td>
+            `;
+        });
+
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('invoiceDetailsModal'));
+        modal.show();
+    }
+    
+</script>
+
+</body>
+</html>

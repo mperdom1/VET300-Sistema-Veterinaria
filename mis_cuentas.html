@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Cuentas - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="bi bi-person-lines-fill"></i> Historial de Cuentas</h2>
+        <a href="crearcuenta.html" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> Nueva Cuenta</a>
+    </div>
+
+    <div class="card container-bg p-3 mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <label for="searchInput" class="form-label">Buscar Cliente:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Nombre, Teléfono o Email" onkeyup="filterClients()">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="filterBy" class="form-label"><i class="bi bi-sort-up"></i> Ordenar por:</label>
+                <select class="form-select" id="filterBy" disabled>
+                    <option selected>Última actividad</option>
+                    <option>Nombre (A-Z)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="owner" class="form-label"><i class="bi bi-person"></i> Propietario:</label>
+                <select class="form-select" id="owner" disabled>
+                    <option selected>Todos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="clientHistoryContainer">
+        <table class="table table-striped table-hover mt-4">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th class="d-none d-md-table-cell">Mascota</th>
+                    <th class="d-none d-lg-table-cell">Tipo</th>
+                    <th>Teléfono/Email</th>
+                    <th>Registrado Por</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="clientsTableBody">
+                </tbody>
+        </table>
+
+        <div id="noDataMessage" class="text-center mt-5 p-4" style="display: block;">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <h4>Verificando sesión...</h4>
+            <p class="text-muted">Esperando la respuesta de Firebase.</p>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="clientDetailsModal" tabindex="-1" aria-labelledby="clientDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="clientDetailsModalLabel">Detalles de la Cuenta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                <div class="text-center p-5" id="loadingSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-warning" id="editClientButton"><i class="bi bi-pencil"></i> Editar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
+
+
+<script>
+    // 🛑 REEMPLAZA ESTO CON TU CONFIGURACIÓN REAL DE FIREBASE 🛑
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    let allClientsData = []; 
+
+    // --- Inicialización y Carga de Clientes (CORREGIDO PARA AUTH) ---
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Cargar Navbar
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            });
+
+        // 2. Esperar el estado de Autenticación
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                // Si el usuario está logueado, oculta el mensaje de carga y solicita datos.
+                document.getElementById('noDataMessage').style.display = 'none';
+                loadClients();
+            } else {
+                // Si no está logueado, muestra el mensaje de error de autenticación.
+                document.getElementById('noDataMessage').style.display = 'block';
+                document.getElementById('noDataMessage').innerHTML = `
+                    <img src="Desert.svg" alt="Acceso Restringido" style="max-width: 250px;" class="mb-3">
+                    <h4>Acceso Restringido</h4>
+                    <p class="text-muted">Por favor, inicia sesión para ver el historial de cuentas.</p>
+                `;
+            }
+        });
+    });
+    
+    // --------------------------------------------------------
+    // FUNCIONES DE CARGA Y RENDERIZADO
+    // --------------------------------------------------------
+    
+    function loadClients() {
+        // Se llama solo después de que Firebase Auth confirma que el usuario está logueado
+        const clientsRef = database.ref('clients').orderByChild('createdAt');
+        
+        clientsRef.on('value', (snapshot) => {
+            allClientsData = [];
+            document.getElementById('clientsTableBody').innerHTML = '';
+            document.getElementById('noDataMessage').style.display = 'none'; // Ocultar mensaje/spinner de carga
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const key = childSnapshot.key;
+                    const client = childSnapshot.val();
+                    allClientsData.push({ key, ...client });
+                });
+                
+                // Mostrar los datos (el más nuevo primero)
+                renderClients(allClientsData.slice().reverse()); 
+            } else {
+                // No hay clientes en la base de datos
+                document.getElementById('noDataMessage').style.display = 'block';
+                document.getElementById('noDataMessage').innerHTML = `
+                    <img src="Desert.svg" alt="No hay datos" style="max-width: 250px;" class="mb-3">
+                    <h4>Aún no hay cuentas registradas.</h4>
+                    <p class="text-muted">¡Empieza creando una nueva cuenta para tu primer cliente!</p>
+                `;
+            }
+        });
+    }
+    
+    function renderClients(clients) {
+        const clientsTableBody = document.getElementById('clientsTableBody');
+        clientsTableBody.innerHTML = '';
+        
+        if (clients.length === 0 && document.getElementById('searchInput').value !== '') {
+            clientsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No se encontraron resultados que coincidan con la búsqueda.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        clients.forEach(client => {
+            const petName = client.pet && client.pet.name ? client.pet.name : 'N/A';
+            const contactInfo = client.phone || client.email || 'N/A';
+            const clientType = client.type ? client.type.charAt(0).toUpperCase() + client.type.slice(1) : 'Regular';
+            
+            const row = `
+                <tr>
+                    <td>
+                        <strong>${client.name}</strong>
+                        <div class="d-md-none small text-muted">${petName}</div>
+                    </td>
+                    <td class="d-none d-md-table-cell">${petName}</td>
+                    <td class="d-none d-lg-table-cell"><span class="badge text-bg-info">${clientType}</span></td>
+                    <td>${contactInfo}</td>
+                    <td>${client.owner}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewClientDetails('${client.key}')" title="Ver Detalles">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            clientsTableBody.innerHTML += row;
+        });
+    }
+
+    // --------------------------------------------------------
+    // FUNCIONES DE BÚSQUEDA Y DETALLES (MODAL)
+    // --------------------------------------------------------
+    
+    window.filterClients = function() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        if (searchTerm === '') {
+            renderClients(allClientsData.slice().reverse());
+            return;
+        }
+
+        const filtered = allClientsData.filter(client => {
+            const searchPool = (client.name + ' ' + client.phone + ' ' + client.email + ' ' + (client.pet ? client.pet.name : '')).toLowerCase();
+            return searchPool.includes(searchTerm);
+        });
+        
+        renderClients(filtered.reverse());
+    }
+    
+    window.viewClientDetails = function(clientKey) {
+        const modalBody = document.getElementById('modalBodyContent');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const modalTitle = document.getElementById('clientDetailsModalLabel');
+        
+        modalBody.innerHTML = '';
+        modalBody.appendChild(loadingSpinner);
+        loadingSpinner.style.display = 'block';
+
+        const clientData = allClientsData.find(c => c.key === clientKey);
+
+        if (clientData) {
+            modalTitle.textContent = `Detalles de ${clientData.name}`;
+            loadingSpinner.style.display = 'none';
+            modalBody.innerHTML = generateDetailsHtml(clientData);
+
+            const detailsModal = new bootstrap.Modal(document.getElementById('clientDetailsModal'));
+            detailsModal.show();
+            
+            document.getElementById('editClientButton').onclick = () => {
+                alert(`Funcionalidad de Edición pendiente para el cliente: ${clientKey}`);
+            };
+
+        } else {
+            modalTitle.textContent = 'Error';
+            modalBody.innerHTML = `<p class="text-danger">No se encontraron datos para este cliente.</p>`;
+            new bootstrap.Modal(document.getElementById('clientDetailsModal')).show();
+        }
+    }
+
+    function generateDetailsHtml(client) {
+        const pet = client.pet || {};
+        const formattedDate = client.createdAt 
+            ? new Date(client.createdAt).toLocaleDateString('es-ES', { 
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+              })
+            : 'Desconocida';
+            
+        return `
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <h4 class="text-primary">${client.name}</h4>
+                    <span class="badge text-bg-info">${client.type.charAt(0).toUpperCase() + client.type.slice(1)}</span>
+                    <p class="small text-muted mt-1">Registrado el: ${formattedDate}</p>
+                </div>
+                
+                <hr>
+                
+                <div class="col-md-6 mb-4">
+                    <h5><i class="bi bi-person-circle me-1"></i> Información de Contacto</h5>
+                    <p class="mb-1"><strong>Teléfono:</strong> ${client.phone || 'N/A'}</p>
+                    <p class="mb-1"><strong>Email:</strong> ${client.email || 'N/A'}</p>
+                    <p class="mb-1"><strong>Registrado por:</strong> ${client.owner || 'N/A'}</p>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <h5><i class="bi bi-paw-fill me-1"></i> Detalles de la Mascota</h5>
+                    <p class="mb-1"><strong>Nombre:</strong> ${pet.name || 'N/A'}</p>
+                    <p class="mb-1"><strong>Especie:</strong> ${pet.species || 'N/A'}</p>
+                    <p class="mb-1"><strong>Raza:</strong> ${pet.breed || 'N/A'}</p>
+                    <p class="mb-1"><strong>Edad:</strong> ${pet.age !== null ? pet.age + ' años' : 'N/A'}</p>
+                    <p class="mb-1"><strong>Peso:</strong> ${pet.weight !== null ? pet.weight + ' kg' : 'N/A'}</p>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <h5><i class="bi bi-journal-text me-1"></i> Historial Médico / Notas</h5>
+                    <p class="border p-3 bg-light rounded">${pet.medicalHistory || 'No hay notas de historial médico registradas.'}</p>
+                </div>
+            </div>
+        `;
+    }
+
+</script>
+
+</body>
+</html>
+
+
+

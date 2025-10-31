@@ -1,0 +1,250 @@
+/* Paleta de Colores VET360 */
+:root {
+    --vet-primary: #8d6e63; /* Café principal */
+    --vet-primary-hover: #6b514b; /* Café más oscuro para hover */
+    --vet-secondary: #a1887f; /* Café secundario */
+    --vet-background: #fdfaf6; /* Crema muy claro para el fondo */
+    --vet-surface: #ffffff; /* Blanco para tarjetas y contenedores */
+    --vet-text: #424242; /* Color de texto principal */
+    --vet-accent: #ffecb3; /* Amarillo crema para acentos */
+}
+
+/* Estilos Generales */
+body {
+    background-color: var(--vet-background);
+    color: var(--vet-text);
+    font-size: 1.05rem; /* Tamaño de letra un poco más grande */
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* --- Componentes Bootstrap Personalizados --- */
+
+/* Botones */
+.btn-primary {
+    background-color: var(--vet-primary);
+    border-color: var(--vet-primary);
+}
+.btn-primary:hover {
+    background-color: var(--vet-primary-hover);
+    border-color: var(--vet-primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--vet-secondary);
+    border-color: var(--vet-secondary);
+}
+.btn-secondary:hover {
+    background-color: #795548;
+    border-color: #795548;
+}
+
+/* Barra de Navegación */
+.navbar-custom {
+    background-color: var(--vet-primary);
+}
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link {
+    color: white;
+}
+.navbar-custom .nav-link.active,
+.navbar-custom .nav-link:hover {
+    color: var(--vet-accent);
+}
+
+/* Logo del navbar */
+.navbar-logo {
+    height: 30px;
+}
+
+/* Iconos grandes para reportes */
+.large-report-icon {
+    font-size: 4rem;
+}
+
+.medium-report-icon {
+    font-size: 2rem;
+}
+
+/* Tarjetas y Contenedores */
+.card, .container-bg {
+    background-color: var(--vet-surface);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+/* Formularios */
+.form-control:focus, .form-select:focus {
+    border-color: var(--vet-secondary);
+    box-shadow: 0 0 0 0.25rem rgba(141, 110, 99, 0.25);
+}
+
+h1, h2, h3 {
+    color: var(--vet-primary);
+    font-weight: 600;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Estilos específicos para el logo */
+.logo-img {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+/* Spinner de carga */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Estados de validación */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+}
+
+.form-control.is-valid {
+    border-color: #198754;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73l.4-.4 1.2-1.2L7.3 1.74 7.7 2.14 4.25 5.61 2.7 7.13z'/%3e%3c/svg%3e");
+}
+
+/* Utilidades para evitar estilos inline */
+.large-spinner {
+    width: 3rem;
+    height: 3rem;
+}
+
+.large-icon {
+    font-size: 3rem;
+}
+
+.d-none {
+    display: none !important;
+}
+
+.hidden-content {
+    display: none;
+}
+
+/* Avatar de usuario */
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+}
+
+/* Animaciones y transiciones */
+.card.grid-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card.grid-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Tienda - estilos específicos */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.category-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.category-card:hover {
+    transform: scale(1.05);
+    border-color: var(--vet-primary);
+}
+
+.large-icon-small {
+    font-size: 2rem;
+}
+
+.cart-item {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Dashboard específico por rol */
+.role-header {
+    background: linear-gradient(135deg, var(--vet-primary), var(--vet-secondary));
+}
+
+/* Casos médicos */
+.case-card .card {
+    transition: transform 0.2s ease;
+}
+
+.case-card:hover .card {
+    transform: translateY(-3px);
+}
+
+/* Panel de facturación */
+.billing-kpi {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-left: 4px solid var(--vet-primary);
+}
+
+/* Estados de casos */
+.status-nuevo { border-left: 4px solid #0d6efd; }
+.status-en-tratamiento { border-left: 4px solid #ffc107; }
+.status-seguimiento { border-left: 4px solid #0dcaf0; }
+.status-critico { border-left: 4px solid #dc3545; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .large-icon {
+        font-size: 2rem;
+    }
+    
+    .large-spinner {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+/* Loading states */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Estilos específicos para páginas */
+.grid-item a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.grid-item.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.grid-item.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}

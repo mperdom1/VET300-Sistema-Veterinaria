@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<!-- Indicador de carga -->
+<div id="authLoading" class="text-center mt-5 p-5">
+    <div class="spinner-border text-primary mb-3 large-spinner" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+    <h4 class="text-primary">Verificando Credenciales...</h4>
+    <p class="text-muted">Cargando tu área de trabajo personalizada...</p>
+</div>
+
+<!-- Contenido principal -->
+<div id="mainContent" class="hidden-content">
+    <div class="container mt-4">
+        <!-- Header personalizado por usuario -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h1 id="greeting" class="mb-1">Cargando...</h1>
+                                <p id="userRole" class="mb-0 opacity-75">Verificando permisos...</p>
+                            </div>
+                            <div class="col-auto">
+                                <div id="userAvatar" class="bg-white rounded-circle text-primary d-flex align-items-center justify-content-center user-avatar">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs dinámicos por rol -->
+        <div id="kpiSection" class="row g-4 mb-4"></div>
+
+        <!-- Menú de accesos rápidos por rol -->
+        <div class="row">
+            <div class="col">
+                <h3 class="mb-3 text-secondary">
+                    <i class="bi bi-speedometer2"></i> 
+                    <span id="menuTitle">Accesos Rápidos</span>
+                </h3>
+                <div id="quickAccessMenu" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <!-- Se carga dinámicamente según el rol -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de administración (solo para admins) -->
+        <div id="adminSection" class="row mt-5 d-none">
+            <div class="col">
+                <h3 class="mb-3 text-danger">
+                    <i class="bi bi-shield-check"></i> 
+                    Administración del Sistema
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <i class="bi bi-people-fill text-danger fs-1 mb-2"></i>
+                                <h5 class="card-title">Gestión de Usuarios</h5>
+                                <p class="card-text text-muted">Crear y administrar cuentas</p>
+                                <a href="admin-register.html" class="btn btn-danger">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <i class="bi bi-bar-chart-fill text-warning fs-1 mb-2"></i>
+                                <h5 class="card-title">Reportes</h5>
+                                <p class="card-text text-muted">Estadísticas del sistema</p>
+                                <a href="#" class="btn btn-warning">Próximamente</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK v9 (modular) -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Definir las vistas por rol
+    const ROLE_VIEWS = {
+        veterinario: {
+            title: "Panel del Veterinario",
+            subtitle: "Gestión Médica y Clínica",
+            icon: "bi-heart-pulse",
+            color: "success",
+            kpis: [
+                { id: "casos_activos", title: "Casos Activos", icon: "bi-clipboard-pulse", color: "primary" },
+                { id: "citas_hoy", title: "Citas Hoy", icon: "bi-calendar-check", color: "warning" },
+                { id: "cirugias_programadas", title: "Cirugías", icon: "bi-scissors", color: "danger" },
+                { id: "pacientes_criticos", title: "Críticos", icon: "bi-exclamation-triangle", color: "dark" }
+            ],
+            menu: [
+                { 
+                    title: "Nuevo Caso Médico", 
+                    icon: "bi-plus-circle-fill", 
+                    description: "Crear nuevo caso clínico", 
+                    href: "Nuevo Caso.html", 
+                    color: "primary" 
+                },
+                { 
+                    title: "Casos Activos", 
+                    icon: "bi-clipboard-data", 
+                    description: "Ver casos en tratamiento", 
+                    href: "casos_activos.html", 
+                    color: "success" 
+                },
+                { 
+                    title: "Historial Médico", 
+                    icon: "bi-journal-medical", 
+                    description: "Consultar historiales", 
+                    href: "historial_medico.html", 
+                    color: "info" 
+                },
+                { 
+                    title: "Agenda de Citas", 
+                    icon: "bi-calendar-check", 
+                    description: "Ver citas programadas", 
+                    href: "calendario_citas.html", 
+                    color: "warning" 
+                },
+                { 
+                    title: "Prescripciones", 
+                    icon: "bi-capsule", 
+                    description: "Gestionar medicamentos", 
+                    href: "prescripciones.html", 
+                    color: "secondary" 
+                },
+                { 
+                    title: "Pacientes", 
+                    icon: "bi-heart", 
+                    description: "Directorio de pacientes", 
+                    href: "mis_cuentas.html", 
+                    color: "dark" 
+                }
+            ]
+        },
+        recepcionista: {
+            title: "Panel de Recepción",
+            subtitle: "Atención al Cliente y Facturación",
+            icon: "bi-cash-coin",
+            color: "info",
+            kpis: [
+                { id: "facturas_pendientes", title: "Facturas Pendientes", icon: "bi-receipt", color: "warning" },
+                { id: "citas_hoy", title: "Citas Hoy", icon: "bi-calendar-check", color: "primary" },
+                { id: "pagos_recibidos", title: "Pagos Hoy", icon: "bi-currency-dollar", color: "success" },
+                { id: "servicios_disponibles", title: "Servicios", icon: "bi-list-check", color: "secondary" }
+            ],
+            menu: [
+                { 
+                    title: "Nueva Factura", 
+                    icon: "bi-receipt-cutoff", 
+                    description: "Crear factura de servicios", 
+                    href: "crear_factura.html", 
+                    color: "primary" 
+                },
+                { 
+                    title: "Ver Facturas", 
+                    icon: "bi-folder2-open", 
+                    description: "Gestionar facturas existentes", 
+                    href: "ver_facturas.html", 
+                    color: "success" 
+                },
+                { 
+                    title: "Servicios", 
+                    icon: "bi-gear-fill", 
+                    description: "Catálogo de servicios", 
+                    href: "servicios.html", 
+                    color: "info" 
+                },
+                { 
+                    title: "Agendar Cita", 
+                    icon: "bi-calendar-plus", 
+                    description: "Programar nuevas citas", 
+                    href: "agendar_cita.html", 
+                    color: "warning" 
+                },
+                { 
+                    title: "Clientes", 
+                    icon: "bi-people", 
+                    description: "Gestión de clientes", 
+                    href: "mis_cuentas.html", 
+                    color: "secondary" 
+                },
+                { 
+                    title: "Pagos", 
+                    icon: "bi-credit-card", 
+                    description: "Procesar pagos", 
+                    href: "pagos.html", 
+                    color: "dark" 
+                }
+            ]
+        },
+        asistente: {
+            title: "Panel del Asistente",
+            subtitle: "Apoyo Veterinario",
+            icon: "bi-person-check",
+            color: "secondary",
+            kpis: [
+                { id: "citas_hoy", title: "Citas Hoy", icon: "bi-calendar-check", color: "primary" },
+                { id: "pacientes_espera", title: "En Espera", icon: "bi-hourglass-split", color: "warning" },
+                { id: "procedimientos", title: "Procedimientos", icon: "bi-bandaid", color: "success" },
+                { id: "inventario_bajo", title: "Stock Bajo", icon: "bi-exclamation-circle", color: "danger" }
+            ],
+            menu: [
+                { 
+                    title: "Pacientes Hoy", 
+                    icon: "bi-list-ul", 
+                    description: "Lista de pacientes del día", 
+                    href: "pacientes_hoy.html", 
+                    color: "primary" 
+                },
+                { 
+                    title: "Apoyo en Consultas", 
+                    icon: "bi-person-plus", 
+                    description: "Asistir en procedimientos", 
+                    href: "apoyo_consultas.html", 
+                    color: "success" 
+                },
+                { 
+                    title: "Citas", 
+                    icon: "bi-calendar-check", 
+                    description: "Ver agenda del día", 
+                    href: "calendario_citas.html", 
+                    color: "warning" 
+                },
+                { 
+                    title: "Inventario", 
+                    icon: "bi-box-seam", 
+                    description: "Gestión de inventario", 
+                    href: "inventario.html", 
+                    color: "info" 
+                }
+            ]
+        },
+        admin: {
+            title: "Panel de Administración",
+            subtitle: "Control Total del Sistema",
+            icon: "bi-shield-check",
+            color: "danger",
+            kpis: [
+                { id: "usuarios_activos", title: "Usuarios Activos", icon: "bi-people", color: "primary" },
+                { id: "ingresos_mes", title: "Ingresos Mes", icon: "bi-graph-up", color: "success" },
+                { id: "casos_totales", title: "Casos Totales", icon: "bi-clipboard-data", color: "info" },
+                { id: "sistema_status", title: "Sistema", icon: "bi-server", color: "warning" }
+            ],
+            menu: [
+                { 
+                    title: "Gestión de Usuarios", 
+                    icon: "bi-people-fill", 
+                    description: "Administrar usuarios del sistema", 
+                    href: "admin-register.html", 
+                    color: "danger" 
+                },
+                { 
+                    title: "Reportes", 
+                    icon: "bi-bar-chart-fill", 
+                    description: "Estadísticas y reportes", 
+                    href: "reportes.html", 
+                    color: "primary" 
+                },
+                { 
+                    title: "Configuración", 
+                    icon: "bi-gear", 
+                    description: "Ajustes del sistema", 
+                    href: "configuracion.html", 
+                    color: "secondary" 
+                },
+                { 
+                    title: "Ver Todo", 
+                    icon: "bi-eye", 
+                    description: "Acceso completo", 
+                    href: "#", 
+                    color: "dark",
+                    onclick: "showAllViews()" 
+                }
+            ]
+        }
+    };
+
+    // Elementos del DOM
+    const mainContent = document.getElementById('mainContent');
+    const authLoading = document.getElementById('authLoading');
+    const greeting = document.getElementById('greeting');
+    const userRole = document.getElementById('userRole');
+    const kpiSection = document.getElementById('kpiSection');
+    const quickAccessMenu = document.getElementById('quickAccessMenu');
+    const adminSection = document.getElementById('adminSection');
+    const menuTitle = document.getElementById('menuTitle');
+
+    // Generar saludo personalizado
+    function generateGreeting(userProfile) {
+        const hour = new Date().getHours();
+        let timePhrase = hour < 12 ? "¡Buenos días" : hour < 18 ? "¡Buenas tardes" : "¡Buenas noches";
+        let userName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Usuario';
+        return `${timePhrase}, ${userName}! 🐾`;
+    }
+
+    // Obtener perfil del usuario
+    async function getUserProfile(uid) {
+        try {
+            const userRef = ref(database, 'users/' + uid);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                return snapshot.val();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting user profile:', error);
+            return null;
+        }
+    }
+
+    // Crear KPIs por rol
+    function createKPIs(kpis) {
+        kpiSection.innerHTML = '';
+        kpis.forEach(kpi => {
+            const kpiCard = `
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-${kpi.color} shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <i class="${kpi.icon} text-${kpi.color} fs-1 mb-2"></i>
+                            <h5 class="card-title text-${kpi.color}">${kpi.title}</h5>
+                            <p class="fs-2 fw-bold" id="${kpi.id}">-</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            kpiSection.innerHTML += kpiCard;
+        });
+    }
+
+    // Crear menú de accesos rápidos
+    function createQuickAccessMenu(menuItems) {
+        quickAccessMenu.innerHTML = '';
+        menuItems.forEach(item => {
+            const menuCard = `
+                <div class="col">
+                    <div class="card grid-item border-${item.color} shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="${item.icon} text-${item.color} fs-1 mb-3"></i>
+                            <h4 class="card-title text-${item.color}">${item.title}</h4>
+                            <p class="card-text text-muted mb-3">${item.description}</p>
+                            <a href="${item.href}" class="btn btn-${item.color} btn-lg w-100" ${item.onclick ? `onclick="${item.onclick}"` : ''}>
+                                Acceder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            quickAccessMenu.innerHTML += menuCard;
+        });
+    }
+
+    // Mostrar vista según rol
+    function showRoleBasedView(userProfile) {
+        const role = userProfile.role;
+        const roleView = ROLE_VIEWS[role];
+
+        if (!roleView) {
+            console.error('Rol no reconocido:', role);
+            return;
+        }
+
+        // Actualizar header
+        greeting.textContent = generateGreeting(userProfile);
+        userRole.innerHTML = `
+            <i class="${roleView.icon}"></i> 
+            ${roleView.title} - ${roleView.subtitle}
+        `;
+
+        // Crear KPIs
+        createKPIs(roleView.kpis);
+
+        // Crear menú
+        menuTitle.innerHTML = `
+            <i class="bi bi-speedometer2"></i> 
+            ${roleView.title}
+        `;
+        createQuickAccessMenu(roleView.menu);
+
+        // Mostrar sección de admin si es necesario
+        if (role === 'admin' || role === 'it_support') {
+            adminSection.classList.remove('d-none');
+        }
+
+        // Cargar KPIs con datos simulados
+        loadKPIData(role);
+    }
+
+    // Cargar datos de KPIs (simulados por ahora)
+    function loadKPIData(role) {
+        setTimeout(() => {
+            // Datos simulados
+            const mockData = {
+                casos_activos: Math.floor(Math.random() * 15) + 5,
+                citas_hoy: Math.floor(Math.random() * 10) + 3,
+                cirugias_programadas: Math.floor(Math.random() * 3) + 1,
+                pacientes_criticos: Math.floor(Math.random() * 5),
+                facturas_pendientes: Math.floor(Math.random() * 8) + 2,
+                pagos_recibidos: `$${(Math.random() * 5000 + 1000).toFixed(0)}`,
+                servicios_disponibles: Math.floor(Math.random() * 20) + 15,
+                pacientes_espera: Math.floor(Math.random() * 6) + 1,
+                procedimientos: Math.floor(Math.random() * 12) + 3,
+                inventario_bajo: Math.floor(Math.random() * 4),
+                usuarios_activos: Math.floor(Math.random() * 15) + 8,
+                ingresos_mes: `$${(Math.random() * 50000 + 10000).toFixed(0)}`,
+                casos_totales: Math.floor(Math.random() * 200) + 150,
+                sistema_status: "✅ Online"
+            };
+
+            // Actualizar elementos que existen
+            Object.keys(mockData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = mockData[key];
+                }
+            });
+        }, 1000);
+    }
+
+    // Función global para mostrar todas las vistas (admin)
+    window.showAllViews = function() {
+        alert('🔧 Funcionalidad en desarrollo: Vista completa del sistema');
+    };
+
+    // Cargar navbar
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+                
+                // Inicializar botón de logout después de cargar el navbar
+                setTimeout(initializeLogoutButton, 100);
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+    });
+
+    // Función para inicializar el botón de logout
+    function initializeLogoutButton() {
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton && !logoutButton.hasAttribute('data-logout-initialized')) {
+            logoutButton.addEventListener('click', handleLogout);
+            logoutButton.setAttribute('data-logout-initialized', 'true');
+            console.log('Logout button initialized in dashboard');
+        }
+    }
+
+    // Función para manejar logout
+    async function handleLogout() {
+        try {
+            console.log('Logging out user...');
+            
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                const originalText = logoutButton.innerHTML;
+                logoutButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Cerrando...';
+                logoutButton.disabled = true;
+            }
+            
+            // Sign out from Firebase
+            await signOut(auth);
+            
+            console.log('User signed out successfully');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+            
+        } catch (error) {
+            console.error('Error during logout:', error);
+            
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                logoutButton.innerHTML = '<i class="bi bi-box-arrow-right me-1"></i> Salir';
+                logoutButton.disabled = false;
+            }
+            
+            alert('Error al cerrar sesión. Intenta de nuevo.');
+        }
+    }
+
+    // Autenticación y autorización
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userProfile = await getUserProfile(user.uid);
+            
+            if (userProfile) {
+                showRoleBasedView(userProfile);
+                mainContent.classList.remove('hidden-content');
+                authLoading.style.display = 'none';
+            } else {
+                authLoading.innerHTML = `
+                    <i class="bi bi-exclamation-triangle text-warning mb-3 large-icon"></i>
+                    <h4 class="text-warning">Perfil Incompleto</h4>
+                    <p class="text-muted">Tu cuenta necesita configuración adicional. Contacta al administrador.</p>
+                `;
+            }
+        } else {
+            authLoading.innerHTML = `
+                <i class="bi bi-lock-fill text-danger mb-3 large-icon"></i>
+                <h4 class="text-danger">Acceso Denegado</h4>
+                <p class="text-muted">Necesitas iniciar sesión. Redirigiendo...</p>
+            `;
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
+    });
+</script>
+
+</body>
+</html>
