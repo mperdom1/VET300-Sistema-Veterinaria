@@ -37,11 +37,9 @@
 
 ## 1. RESUMEN EJECUTIVO
 
-VET360 es un sistema integral de gestión veterinaria desarrollado como una aplicación web moderna que centraliza todas las operaciones de una clínica veterinaria. El sistema implementa autenticación segura basada en roles, gestión de casos médicos, panel de facturación, y una tienda e-commerce integrada para la venta de productos veterinarios.
+VET360 es un sistema integral de gestión veterinaria desarrollado como una aplicación web moderna que centraliza todas las operaciones críticas de una clínica veterinaria, desde la gestión médica de pacientes hasta la administración financiera y ventas de productos. El sistema implementa autenticación segura basada en roles mediante Firebase, permitiendo acceso diferenciado para veterinarios, recepcionistas, administradores y personal de soporte IT, mientras integra módulos especializados para casos médicos, facturación automatizada, y una plataforma e-commerce completa.
 
-La plataforma utiliza tecnologías web modernas como Firebase para el backend, Bootstrap para la interfaz responsive, y JavaScript ES6 para la lógica de negocio. El sistema está diseñado para mejorar la eficiencia operativa, reducir errores administrativos, y proporcionar una experiencia de usuario intuitiva tanto para el personal médico como administrativo.
-
-Los principales beneficios incluyen: gestión centralizada de información, control de acceso por roles, automatización de procesos de facturación, y capacidades de e-commerce para generar ingresos adicionales.
+Los principales beneficios incluyen la eliminación de procesos manuales propensos a errores, centralización de información médica y administrativa, automatización del sistema de facturación, control granular de acceso por roles, y generación de ingresos adicionales através de la tienda integrada. La arquitectura basada en tecnologías web modernas (Firebase, Bootstrap 5, JavaScript ES6) garantiza escalabilidad, seguridad y una experiencia de usuario intuitiva, posicionando a VET360 como una solución completa que mejora significativamente la eficiencia operativa y reduce costos administrativos en clínicas veterinarias.
 
 ---
 
