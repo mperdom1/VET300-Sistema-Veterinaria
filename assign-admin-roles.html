@@ -168,11 +168,11 @@
     </div>
 </div>
 
-<!-- Firebase SDK v9 (modular) -->
+<!-- Firebase SDK v12 (modular) -->
 <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
 
     // Firebase configuration
     const firebaseConfig = {
@@ -189,7 +189,7 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db = getDatabase(app);
 
     // UI elements
     const user1Form = document.getElementById('user1-form');
@@ -284,14 +284,15 @@
             console.log('User authenticated successfully, UID:', user.uid);
             
             // Check if user profile already exists
-            const existingDoc = await getDoc(doc(db, 'users', user.uid));
-            if (existingDoc.exists()) {
+            const userRef = ref(db, `users/${user.uid}`);
+            const existingSnapshot = await get(userRef);
+            if (existingSnapshot.exists()) {
                 console.log('User profile already exists, updating...');
             } else {
                 console.log('Creating new user profile...');
             }
             
-            // Create admin profile in Firestore
+            // Create admin profile in Realtime Database
             const adminProfile = {
                 uid: user.uid,
                 email: userData.email,
@@ -300,7 +301,7 @@
                 role: userData.role,
                 department: userData.department,
                 employeeId: userData.employeeId,
-                createdAt: existingDoc.exists() ? existingDoc.data().createdAt : new Date().toISOString(),
+                createdAt: existingSnapshot.exists() ? existingSnapshot.val().createdAt : new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 requirePasswordChange: false,
                 isActive: true,
@@ -310,9 +311,9 @@
                 profileCompleted: true
             };
 
-            console.log('Saving profile to Firestore...');
-            // Save to Firestore with merge option
-            await setDoc(doc(db, 'users', user.uid), adminProfile, { merge: true });
+            console.log('Saving profile to Realtime Database...');
+            // Save to Realtime Database
+            await set(userRef, adminProfile);
             
             console.log('Profile saved successfully');
 
@@ -359,10 +360,10 @@
                     errorMsg = '❌ Credenciales inválidas. Verifica correo y contraseña.';
                     break;
                 case 'permission-denied':
-                    errorMsg = '🚫 Error de permisos en Firestore. Verifica la configuración de la base de datos.';
+                    errorMsg = '🚫 Error de permisos en Realtime Database. Verifica la configuración de la base de datos.';
                     break;
                 case 'unavailable':
-                    errorMsg = '📡 Firestore no está disponible. Intenta más tarde.';
+                    errorMsg = '📡 Realtime Database no está disponible. Intenta más tarde.';
                     break;
                 default:
                     errorMsg = `🚨 Error específico: ${error.code} - ${error.message}`;
