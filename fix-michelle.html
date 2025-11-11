@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arreglar Michelle - VET360</title>
+</head>
+<body>
+    <h3>Arreglando perfil de Michelle...</h3>
+    <div id="status">Procesando...</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    async function fixMichelle() {
+        try {
+            // Autenticar como Michelle
+            const userCredential = await signInWithEmailAndPassword(auth, 'mperdomo591@gmail.com', 'Admin123');
+            const user = userCredential.user;
+            
+            // Crear perfil completo de administrador
+            const adminProfile = {
+                email: 'mperdomo591@gmail.com',
+                firstName: 'Michelle',
+                lastName: 'Perdomo',
+                role: 'admin',
+                isActive: true,
+                permissions: {
+                    canCreateUsers: true,
+                    canEditUsers: true,
+                    canDeleteUsers: true,
+                    canViewReports: true,
+                    canManageAppointments: true,
+                    canManageInvoices: true,
+                    canManagePatients: true,
+                    canManageInventory: true,
+                    canManageSettings: true
+                },
+                department: 'Administración',
+                phone: '+1234567890',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Guardar en la base de datos
+            const userRef = ref(database, 'users/' + user.uid);
+            await set(userRef, adminProfile);
+            
+            document.getElementById('status').innerHTML = `
+                ✅ Perfil de Michelle actualizado correctamente<br>
+                UID: ${user.uid}<br>
+                Rol: Administrador<br>
+                Permisos: Completos (incluyendo reportes)<br><br>
+                <strong>Ahora Michelle puede acceder a reportes.html</strong>
+            `;
+            
+        } catch (error) {
+            document.getElementById('status').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    // Ejecutar inmediatamente
+    fixMichelle();
+</script>
+</body>
+</html>

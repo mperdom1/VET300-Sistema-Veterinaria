@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoyo en Consultas - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- Sistema de validaciones VET360 -->
+    <script src="./js/vet360-validations.js"></script>
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<!-- Indicador de carga -->
+<div id="authLoading" class="text-center mt-5 p-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+    <h4 class="text-primary">Cargando Consultas...</h4>
+</div>
+
+<!-- Contenido principal -->
+<div id="mainContent" class="hidden-content">
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1><i class="bi bi-person-plus text-success"></i> Apoyo en Consultas</h1>
+                        <p class="text-muted">Asiste a los veterinarios en procedimientos y consultas</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" onclick="nuevaAsistencia()">
+                            <i class="bi bi-plus-circle"></i> Nueva Asistencia
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-stethoscope fs-1 me-3"></i>
+                            <div>
+                                <h3 id="consultasActivas">0</h3>
+                                <small>Consultas Activas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-bandaid fs-1 me-3"></i>
+                            <div>
+                                <h3 id="procedimientos">0</h3>
+                                <small>Procedimientos Hoy</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle fs-1 me-3"></i>
+                            <div>
+                                <h3 id="completadas">0</h3>
+                                <small>Completadas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock fs-1 me-3"></i>
+                            <div>
+                                <h3 id="pendientes">0</h3>
+                                <small>Pendientes</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="filtroVeterinario" class="form-label">Veterinario</label>
+                                <select class="form-select" id="filtroVeterinario">
+                                    <option value="">Todos</option>
+                                    <option value="dr_martinez">Dr. Martínez</option>
+                                    <option value="dra_lopez">Dra. López</option>
+                                    <option value="dr_garcia">Dr. García</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filtroTipo" class="form-label">Tipo de Procedimiento</label>
+                                <select class="form-select" id="filtroTipo">
+                                    <option value="">Todos</option>
+                                    <option value="consulta">Consulta General</option>
+                                    <option value="cirugia">Cirugía</option>
+                                    <option value="vacunacion">Vacunación</option>
+                                    <option value="emergencia">Emergencia</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filtroEstado" class="form-label">Estado</label>
+                                <select class="form-select" id="filtroEstado">
+                                    <option value="">Todos</option>
+                                    <option value="waiting">En Espera</option>
+                                    <option value="in_progress">En Progreso</option>
+                                    <option value="completed">Completado</option>
+                                    <option value="needs_assistance">Requiere Asistencia</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                                    <i class="bi bi-x-circle"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de consultas -->
+        <div class="row">
+            <div class="col">
+                <div id="listaConsultas">
+                    <!-- Se carga dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para registrar asistencia -->
+        <div class="modal fade" id="modalAsistencia" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registrar Asistencia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Contenedor de errores del formulario -->
+                        <div id="form-error-container" class="d-none mb-3"></div>
+                        
+                        <form id="formAsistencia" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="pacienteSelect" class="form-label">Paciente <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="pacienteSelect" required>
+                                        <option value="">Seleccionar paciente...</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Selecciona la mascota que necesita asistencia</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="veterinarioSelect" class="form-label">Veterinario <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="veterinarioSelect" required>
+                                        <option value="">Seleccionar veterinario...</option>
+                                        <option value="dr_martinez">Dr. Martínez</option>
+                                        <option value="dra_lopez">Dra. López</option>
+                                        <option value="dr_garcia">Dr. García</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Veterinario a cargo del procedimiento</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="tipoAsistencia" class="form-label">Tipo de Asistencia <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="tipoAsistencia" required>
+                                        <option value="">Seleccionar tipo...</option>
+                                        <option value="preparacion">Preparación del Paciente</option>
+                                        <option value="instrumentos">Manejo de Instrumentos</option>
+                                        <option value="medicacion">Administración de Medicación</option>
+                                        <option value="contencion">Contención del Animal</option>
+                                        <option value="limpieza">Limpieza y Desinfección</option>
+                                        <option value="emergencia">Asistencia en Emergencia</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Tipo de apoyo requerido</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="prioridad" class="form-label">Prioridad <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="prioridad" required>
+                                        <option value="medium" selected>Media</option>
+                                        <option value="low">Baja</option>
+                                        <option value="high">Alta</option>
+                                        <option value="urgent">Urgente</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Nivel de urgencia del apoyo</div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="notasAsistencia" class="form-label">Notas</label>
+                                    <textarea class="form-control" id="notasAsistencia" rows="3" 
+                                              maxlength="500"
+                                              placeholder="Detalles específicos de la asistencia requerida..."
+                                              title="Información adicional sobre la asistencia (máximo 500 caracteres)"></textarea>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Opcional - Detalles adicionales (máximo 500 caracteres)</div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="registrarAsistencia()">Registrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK v12.5.0 -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, get, push, set, update } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // UI elements
+    const authLoading = document.getElementById('authLoading');
+    const mainContent = document.getElementById('mainContent');
+    const listaConsultas = document.getElementById('listaConsultas');
+
+    let allConsultas = [];
+    let filteredConsultas = [];
+    let currentUser = null;
+
+    // Cargar navbar
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+    });
+
+    // Obtener fecha de hoy
+    function getTodayString() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    // Cargar consultas y asistencias
+    async function cargarConsultas() {
+        try {
+            // Intentar cargar datos reales de Firebase
+            const citasRef = ref(database, 'appointments');
+            const casosRef = ref(database, 'medical_cases');
+            
+            const [citasSnapshot, casosSnapshot] = await Promise.all([
+                get(citasRef),
+                get(casosRef)
+            ]);
+            
+            let consultas = [];
+            
+            // Combinar citas y casos médicos
+            if (citasSnapshot.exists()) {
+                const citas = Object.entries(citasSnapshot.val()).map(([id, data]) => ({
+                    id,
+                    type: 'appointment',
+                    ...data
+                }));
+                consultas = [...consultas, ...citas];
+            }
+            
+            if (casosSnapshot.exists()) {
+                const casos = Object.entries(casosSnapshot.val()).map(([id, data]) => ({
+                    id,
+                    type: 'medical_case',
+                    ...data
+                }));
+                consultas = [...consultas, ...casos];
+            }
+            
+            // Si no hay datos, usar datos de ejemplo con mascotas reales
+            if (consultas.length === 0) {
+                consultas = await generarDatosEjemplo();
+            }
+            
+            // Filtrar solo consultas de hoy
+            const today = getTodayString();
+            allConsultas = consultas.filter(consulta => consulta.date === today);
+            
+            filteredConsultas = [...allConsultas];
+            mostrarConsultas();
+            actualizarEstadisticas();
+            
+        } catch (error) {
+            console.error('Error cargando consultas:', error);
+            allConsultas = await generarDatosEjemplo();
+            filteredConsultas = [...allConsultas];
+            mostrarConsultas();
+            actualizarEstadisticas();
+        }
+    }
+
+    // Cargar mascotas reales de las cuentas registradas
+    async function cargarMascotasReales() {
+        try {
+            const clientsRef = ref(database, 'clients');
+            const snapshot = await get(clientsRef);
+            
+            if (snapshot.exists()) {
+                const clients = Object.entries(snapshot.val()).map(([id, data]) => ({
+                    id,
+                    ...data
+                }));
+                
+                // Filtrar clientes que tienen mascotas
+                const mascotasReales = clients.filter(client => client.pet && client.pet.name);
+                
+                return mascotasReales;
+            }
+            
+            return [];
+        } catch (error) {
+            console.error('Error cargando mascotas reales:', error);
+            return [];
+        }
+    }
+
+    // Generar datos de ejemplo con mascotas reales si están disponibles
+    async function generarDatosEjemplo() {
+        const veterinarios = ['Dr. Martínez', 'Dra. López', 'Dr. García'];
+        const tipos = ['consulta', 'cirugia', 'vacunacion', 'emergencia'];
+        const estados = ['waiting', 'in_progress', 'completed', 'needs_assistance'];
+        const prioridades = ['low', 'medium', 'high', 'urgent'];
+        
+        // Cargar mascotas reales
+        const mascotasReales = await cargarMascotasReales();
+        
+        // Si no hay mascotas reales, usar nombres ficticios
+        const nombresFicticios = ['Luna', 'Max', 'Bella', 'Rocky', 'Lola', 'Charlie', 'Mia', 'Rex'];
+        
+        // Crear consultas usando mascotas reales si están disponibles
+        const numConsultas = Math.max(12, mascotasReales.length);
+        
+        return Array.from({length: numConsultas}, (_, i) => {
+            let petInfo, ownerInfo;
+            
+            if (i < mascotasReales.length) {
+                // Usar mascota real
+                const cliente = mascotasReales[i];
+                petInfo = {
+                    petName: cliente.pet.name,
+                    species: cliente.pet.species || 'No especificado',
+                    breed: cliente.pet.breed || 'Mestizo',
+                    age: cliente.pet.age || 'No especificado',
+                    weight: cliente.pet.weight || 'No especificado'
+                };
+                ownerInfo = {
+                    ownerName: cliente.name || cliente.owner || 'Propietario',
+                    phone: cliente.phone || 'No disponible',
+                    email: cliente.email || 'No disponible'
+                };
+            } else {
+                // Usar datos ficticios si no hay suficientes mascotas reales
+                petInfo = {
+                    petName: nombresFicticios[Math.floor(Math.random() * nombresFicticios.length)],
+                    species: ['Perro', 'Gato', 'Conejo'][Math.floor(Math.random() * 3)],
+                    breed: 'Mestizo',
+                    age: Math.floor(Math.random() * 10) + 1,
+                    weight: (Math.random() * 30 + 5).toFixed(1)
+                };
+                ownerInfo = {
+                    ownerName: `Propietario ${i + 1}`,
+                    phone: `555-000${String(i + 1).padStart(2, '0')}`,
+                    email: `cliente${i + 1}@email.com`
+                };
+            }
+            
+            const selectedType = tipos[Math.floor(Math.random() * tipos.length)];
+            const selectedStatus = estados[Math.floor(Math.random() * estados.length)];
+            const selectedPriority = prioridades[Math.floor(Math.random() * prioridades.length)];
+            const requiresAssistance = Math.random() > 0.6;
+            
+            return {
+                id: `consulta_${i}`,
+                ...petInfo,
+                ...ownerInfo,
+                veterinarian: veterinarios[Math.floor(Math.random() * veterinarios.length)],
+                type: selectedType,
+                status: requiresAssistance ? 'needs_assistance' : selectedStatus,
+                priority: selectedPriority || 'medium',
+                time: `${String(9 + Math.floor(i / 2)).padStart(2, '0')}:${(i % 2) * 30 === 0 ? '00' : '30'}`,
+                date: getTodayString(),
+                assistanceRequired: requiresAssistance,
+                assistanceType: requiresAssistance ? ['preparacion', 'instrumentos', 'medicacion', 'contencion'][Math.floor(Math.random() * 4)] : null,
+                notes: `${selectedType === 'cirugia' ? 'Cirugía programada' : 'Consulta'} para ${petInfo.petName} - Prioridad: ${selectedPriority}`
+            };
+        });
+    }
+
+    // Mostrar consultas
+    function mostrarConsultas() {
+        if (filteredConsultas.length === 0) {
+            listaConsultas.innerHTML = `
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle fs-1 mb-3"></i>
+                    <h4>No hay consultas programadas</h4>
+                    <p>No se encontraron consultas para los filtros seleccionados.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Validar y limpiar datos de consultas antes de mostrar
+        filteredConsultas.forEach(consulta => {
+            if (!consulta.priority || consulta.priority === 'undefined') {
+                consulta.priority = 'medium';
+            }
+            if (!consulta.status || consulta.status === 'undefined') {
+                consulta.status = 'waiting';
+            }
+            if (!consulta.petName || consulta.petName === 'undefined') {
+                consulta.petName = 'Paciente';
+            }
+            if (!consulta.ownerName || consulta.ownerName === 'undefined') {
+                consulta.ownerName = 'Propietario';
+            }
+        });
+
+        const html = filteredConsultas.map(consulta => {
+            const statusColors = {
+                waiting: 'warning',
+                in_progress: 'primary',
+                completed: 'success',
+                needs_assistance: 'danger'
+            };
+            
+            const statusTexts = {
+                waiting: 'En Espera',
+                in_progress: 'En Progreso',
+                completed: 'Completado',
+                needs_assistance: 'Requiere Asistencia'
+            };
+
+            const priorityColors = {
+                low: 'secondary',
+                medium: 'info',
+                high: 'warning',
+                urgent: 'danger'
+            };
+            
+            const priorityTexts = {
+                low: 'Baja',
+                medium: 'Media', 
+                high: 'Alta',
+                urgent: 'Urgente',
+                normal: 'Normal',
+                undefined: 'Normal'
+            };
+
+            const typeIcons = {
+                consulta: 'bi-stethoscope',
+                cirugia: 'bi-scissors',
+                vacunacion: 'bi-shield-check',
+                emergencia: 'bi-exclamation-triangle'
+            };
+
+            return `
+                <div class="card mb-3 ${consulta.assistanceRequired ? 'border-danger' : ''}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi ${typeIcons[consulta.type] || 'bi-clipboard-heart'} fs-4 me-3 text-primary"></i>
+                                    <div>
+                                        <h5 class="mb-0">${consulta.petName || 'Paciente'}</h5>
+                                        <small class="text-muted">${consulta.ownerName || 'Propietario'}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>${consulta.time}</strong>
+                                <br>
+                                <span class="badge bg-${priorityColors[consulta.priority || 'medium'] || 'secondary'} small">
+                                    Prioridad: ${priorityTexts[consulta.priority || 'medium'] || 'Normal'}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <i class="bi bi-person-badge"></i>
+                                <br>
+                                <small>${consulta.veterinarian || 'No asignado'}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge bg-${statusColors[consulta.status] || 'secondary'}">
+                                    ${statusTexts[consulta.status] || 'Estado desconocido'}
+                                </span>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                ${consulta.assistanceRequired ? 
+                                    '<i class="bi bi-exclamation-triangle text-danger me-2" title="Requiere Asistencia"></i>' : ''
+                                }
+                                <button class="btn btn-outline-primary btn-sm me-1" onclick="verDetalles('${consulta.id}')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                ${consulta.status === 'completed' ? 
+                                    '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Completado</span>' :
+                                    consulta.status === 'in_progress' ? 
+                                    '<span class="badge bg-primary"><i class="bi bi-person-check"></i> Asistiendo</span>' :
+                                    `<button class="btn btn-success btn-sm" onclick="asistir('${consulta.id}')">
+                                        <i class="bi bi-hand-thumbs-up"></i> Asistir
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                        ${consulta.assistanceType ? `
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <small class="text-muted">
+                                        <i class="bi bi-tools"></i> Tipo de asistencia: ${consulta.assistanceType}
+                                    </small>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        listaConsultas.innerHTML = html;
+    }
+
+    // Actualizar estadísticas
+    function actualizarEstadisticas() {
+        const stats = {
+            consultasActivas: filteredConsultas.filter(c => c.status === 'in_progress').length,
+            procedimientos: filteredConsultas.length,
+            completadas: filteredConsultas.filter(c => c.status === 'completed').length,
+            pendientes: filteredConsultas.filter(c => c.status === 'waiting' || c.status === 'needs_assistance').length
+        };
+
+        document.getElementById('consultasActivas').textContent = stats.consultasActivas;
+        document.getElementById('procedimientos').textContent = stats.procedimientos;
+        document.getElementById('completadas').textContent = stats.completadas;
+        document.getElementById('pendientes').textContent = stats.pendientes;
+    }
+
+    // Ver detalles
+    window.verDetalles = function(consultaId) {
+        const consulta = allConsultas.find(c => c.id === consultaId);
+        if (!consulta) return;
+        
+        alert(`Detalles de ${consulta.petName}\nVeterinario: ${consulta.veterinarian}\nEstado: ${consulta.status}\nNotas: ${consulta.notes || 'Sin notas'}`);
+    };
+
+    // Asistir en consulta
+    window.asistir = function(consultaId) {
+        const consulta = allConsultas.find(c => c.id === consultaId);
+        if (!consulta) return;
+        
+        // Confirmar antes de asistir
+        const confirmMessage = `¿Confirmas que vas a asistir en el procedimiento de ${consulta.petName}?`;
+        if (!confirm(confirmMessage)) return;
+        
+        // Actualizar estado de la consulta
+        consulta.status = 'in_progress';
+        consulta.assistanceRequired = false;
+        consulta.assistedBy = currentUser?.firstName || 'Asistente';
+        consulta.assistanceTime = new Date().toISOString();
+        consulta.assistanceNotes = `Asistencia iniciada por ${currentUser?.firstName || 'Asistente'} el ${new Date().toLocaleString()}`;
+        
+        // Actualizar también en filteredConsultas
+        const filteredIndex = filteredConsultas.findIndex(c => c.id === consultaId);
+        if (filteredIndex !== -1) {
+            filteredConsultas[filteredIndex] = { ...consulta };
+        }
+        
+        // Refrescar la vista
+        mostrarConsultas();
+        actualizarEstadisticas();
+        
+        // Mostrar notificación de éxito
+        showVET360Toast('Asistencia Iniciada', `Ahora estás asistiendo a ${consulta.petName}`, 'success');
+    };
+
+    // Nueva asistencia
+    window.nuevaAsistencia = async function() {
+        // Cargar pacientes en el select
+        const pacienteSelect = document.getElementById('pacienteSelect');
+        pacienteSelect.innerHTML = '<option value="">Seleccionar paciente...</option>';
+        
+        // Primero cargar mascotas reales registradas
+        try {
+            const mascotasReales = await cargarMascotasReales();
+            
+            if (mascotasReales.length > 0) {
+                // Agregar separador para mascotas registradas
+                pacienteSelect.innerHTML += '<option disabled>--- Mascotas Registradas ---</option>';
+                
+                mascotasReales.forEach((cliente, index) => {
+                    const petName = cliente.pet.name;
+                    const ownerName = cliente.name || cliente.owner || 'Propietario';
+                    const species = cliente.pet.species || '';
+                    const displayText = `${petName} (${species}) - ${ownerName}`;
+                    
+                    pacienteSelect.innerHTML += `<option value="real_${cliente.id}">${displayText}</option>`;
+                });
+            }
+            
+            // Luego cargar consultas activas
+            if (allConsultas.length > 0) {
+                pacienteSelect.innerHTML += '<option disabled>--- Consultas del Día ---</option>';
+                
+                allConsultas.forEach(consulta => {
+                    if (consulta.status !== 'completed') {
+                        const displayText = `${consulta.petName} - ${consulta.ownerName} (${consulta.time})`;
+                        pacienteSelect.innerHTML += `<option value="${consulta.id}">${displayText}</option>`;
+                    }
+                });
+            }
+            
+        } catch (error) {
+            console.error('Error cargando pacientes:', error);
+            // Fallback a consultas existentes
+            allConsultas.forEach(consulta => {
+                if (consulta.status !== 'completed') {
+                    pacienteSelect.innerHTML += `<option value="${consulta.id}">${consulta.petName} - ${consulta.ownerName}</option>`;
+                }
+            });
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalAsistencia'));
+        modal.show();
+    };
+
+    // Registrar asistencia
+    window.registrarAsistencia = function() {
+        const pacienteId = document.getElementById('pacienteSelect').value;
+        const veterinario = document.getElementById('veterinarioSelect').value;
+        const tipoAsistencia = document.getElementById('tipoAsistencia').value;
+        const prioridad = document.getElementById('prioridad').value;
+        const notas = document.getElementById('notasAsistencia').value;
+        
+        // Validar usando el sistema centralizado
+        vet360Validator.clearErrors();
+        
+        let isValid = true;
+        
+        // Validar campos requeridos
+        if (!pacienteId) {
+            vet360Validator.addError('paciente', 'Debe seleccionar un paciente');
+            document.getElementById('pacienteSelect').classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!veterinario) {
+            vet360Validator.addError('veterinario', 'Debe seleccionar un veterinario');
+            document.getElementById('veterinarioSelect').classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!tipoAsistencia) {
+            vet360Validator.addError('tipoAsistencia', 'Debe seleccionar el tipo de asistencia');
+            document.getElementById('tipoAsistencia').classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Validar notas si existen
+        if (notas && !vet360Validator.validateNotes(notas)) {
+            document.getElementById('notasAsistencia').classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            vet360Validator.displayErrors('form-error-container');
+            showVET360Toast('Error de Validación', 'Por favor corrige los errores señalados', 'error');
+            return;
+        }
+        
+        // Limpiar errores visuales
+        ['pacienteSelect', 'veterinarioSelect', 'tipoAsistencia', 'notasAsistencia'].forEach(id => {
+            document.getElementById(id).classList.remove('is-invalid');
+        });
+        vet360Validator.clearErrorsFromDOM('form-error-container');
+        
+        // Crear nueva asistencia
+        const nuevaAsistencia = {
+            id: `asistencia_${Date.now()}`,
+            patientId: pacienteId,
+            veterinarian: veterinario,
+            assistanceType: tipoAsistencia,
+            priority: prioridad,
+            notes: notas,
+            createdBy: currentUser?.firstName || 'Asistente',
+            createdAt: new Date().toISOString(),
+            status: 'needs_assistance',
+            date: getTodayString()
+        };
+        
+        // Agregar a la lista
+        allConsultas.push(nuevaAsistencia);
+        filtrarConsultas();
+        
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsistencia'));
+        modal.hide();
+        
+        // Limpiar formulario
+        document.getElementById('formAsistencia').reset();
+        
+        showVET360Toast('Éxito', 'Asistencia registrada correctamente', 'success');
+    };
+
+    // Filtrar consultas
+    function filtrarConsultas() {
+        const veterinario = document.getElementById('filtroVeterinario').value;
+        const tipo = document.getElementById('filtroTipo').value;
+        const estado = document.getElementById('filtroEstado').value;
+        
+        filteredConsultas = allConsultas.filter(consulta => {
+            if (veterinario && !consulta.veterinarian?.includes(veterinario)) return false;
+            if (tipo && consulta.type !== tipo) return false;
+            if (estado && consulta.status !== estado) return false;
+            return true;
+        });
+        
+        mostrarConsultas();
+        actualizarEstadisticas();
+    }
+
+    // Limpiar filtros
+    window.limpiarFiltros = function() {
+        document.getElementById('filtroVeterinario').value = '';
+        document.getElementById('filtroTipo').value = '';
+        document.getElementById('filtroEstado').value = '';
+        filtrarConsultas();
+    };
+
+    // Inicializar validaciones del formulario
+    function initializeFormValidations() {
+        // Aplicar limitaciones a las notas
+        vet360Validator.applyInputLimitations(document.getElementById('notasAsistencia'), 'notes');
+        
+        // Limpiar errores cuando se seleccionan opciones
+        ['pacienteSelect', 'veterinarioSelect', 'tipoAsistencia'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                this.classList.remove('is-invalid');
+                vet360Validator.clearErrorsFromDOM('form-error-container');
+            });
+        });
+        
+        // Validar notas en tiempo real
+        document.getElementById('notasAsistencia').addEventListener('blur', function() {
+            const notas = this.value.trim();
+            if (notas) {
+                const tempValidator = new VET360Validator();
+                if (!tempValidator.validateNotes(notas)) {
+                    this.classList.add('is-invalid');
+                    const errorDiv = this.parentNode.querySelector('.invalid-feedback');
+                    if (errorDiv) {
+                        errorDiv.textContent = tempValidator.getErrors()[0]?.message || 'Notas inválidas';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            }
+        });
+    }
+
+    // Event listeners
+    document.getElementById('filtroVeterinario').addEventListener('change', filtrarConsultas);
+    document.getElementById('filtroTipo').addEventListener('change', filtrarConsultas);
+    document.getElementById('filtroEstado').addEventListener('change', filtrarConsultas);
+
+    // Autenticación
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Obtener perfil del usuario
+            try {
+                const userRef = ref(database, `users/${user.uid}`);
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    currentUser = snapshot.val();
+                }
+            } catch (error) {
+                console.error('Error obteniendo perfil:', error);
+            }
+            
+            await cargarConsultas();
+            initializeFormValidations();
+            mainContent.classList.remove('hidden-content');
+            authLoading.style.display = 'none';
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+</script>
+
+</body>
+</html>

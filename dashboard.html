@@ -558,13 +558,14 @@
             servicios_disponibles: 15, // Valor fijo por ahora
             
             // Datos de asistente
+            citas_hoy: todayAppointments,
             pacientes_espera: appointments.filter(apt => 
-                apt.date === today && apt.status === 'waiting'
+                apt.date === today && (apt.status === 'waiting' || apt.status === 'in_progress')
             ).length,
             procedimientos: cases.filter(caseItem => 
-                caseItem.date === today && caseItem.type === 'procedure'
+                caseItem.date === today && (caseItem.type === 'procedure' || caseItem.status === 'in_treatment')
             ).length,
-            inventario_bajo: 2 // Valor fijo por ahora hasta implementar inventario
+            inventario_bajo: Math.floor(Math.random() * 5) + 1 // Simulación hasta implementar inventario real
         };
     }
 

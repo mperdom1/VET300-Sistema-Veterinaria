@@ -6,6 +6,8 @@
     <title>Iniciar Sesión - VET360</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- Sistema de validaciones VET360 -->
+    <script src="./js/vet360-validations.js"></script>
 </head>
 <body class="d-flex align-items-center justify-content-center vh-100">
 
@@ -27,16 +29,26 @@
                     <div id="error-message" class="alert alert-danger d-none" role="alert"></div>
                     <div id="success-message" class="alert alert-success d-none" role="alert"></div>
                     
-                    <form id="login-form">
+                    <form id="login-form" novalidate>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email" class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" required
+                                   maxlength="100"
+                                   placeholder="usuario@ejemplo.com"
+                                   title="Ingresa un correo electrónico válido"
+                                   autocomplete="email">
                             <div class="invalid-feedback"></div>
+                            <div class="form-text">Formato: usuario@dominio.com</div>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                            <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="password" name="password" required 
+                                   minlength="6" maxlength="50"
+                                   placeholder="Mínimo 6 caracteres"
+                                   title="Contraseña de al menos 6 caracteres"
+                                   autocomplete="current-password">
                             <div class="invalid-feedback"></div>
+                            <div class="form-text">Mínimo 6 caracteres con letras y números</div>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg" id="login-btn">
@@ -198,7 +210,7 @@
         }
     }
 
-    // Form validation
+    // Form validation usando VET360Validator
     function validateForm() {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
@@ -207,21 +219,58 @@
         emailInput.classList.remove('is-invalid');
         passwordInput.classList.remove('is-invalid');
         
-        let isValid = true;
+        // Usar el validador centralizado
+        const isValid = vet360Validator.validateLoginForm(email, password);
         
-        if (!email || !email.includes('@')) {
-            emailInput.classList.add('is-invalid');
-            emailInput.nextElementSibling.textContent = 'Ingresa un correo válido';
-            isValid = false;
-        }
-        
-        if (!password || password.length < 6) {
-            passwordInput.classList.add('is-invalid');
-            passwordInput.nextElementSibling.textContent = 'La contraseña debe tener al menos 6 caracteres';
-            isValid = false;
+        if (!isValid) {
+            const errors = vet360Validator.getErrors();
+            
+            // Mostrar errores específicos en cada campo
+            errors.forEach(error => {
+                if (error.field === 'email') {
+                    emailInput.classList.add('is-invalid');
+                    emailInput.nextElementSibling.textContent = error.message;
+                } else if (error.field === 'password') {
+                    passwordInput.classList.add('is-invalid');
+                    passwordInput.nextElementSibling.textContent = error.message;
+                }
+            });
         }
         
         return isValid;
+    }
+    
+    // Validaciones en tiempo real
+    function initializeLoginValidations() {
+        // Aplicar limitaciones de entrada
+        vet360Validator.applyInputLimitations(emailInput, 'email');
+        
+        // Validación en tiempo real para email
+        emailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email) {
+                const tempValidator = new VET360Validator();
+                if (!tempValidator.validateEmail(email)) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.textContent = tempValidator.getErrors()[0]?.message || 'Email inválido';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.nextElementSibling.textContent = '';
+                }
+            }
+        });
+        
+        // Validación en tiempo real para password
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            if (password.length > 0 && password.length < 6) {
+                this.classList.add('is-invalid');
+                this.nextElementSibling.textContent = 'Mínimo 6 caracteres';
+            } else if (password.length >= 6) {
+                this.classList.remove('is-invalid');
+                this.nextElementSibling.textContent = '';
+            }
+        });
     }
 
     // Event listeners
@@ -249,6 +298,11 @@
         hideMessages();
     });
 
+    // Initialize validations and check auth state
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeLoginValidations();
+    });
+    
     // Check if user is already logged in
     auth.onAuthStateChanged((user) => {
         if (user) {

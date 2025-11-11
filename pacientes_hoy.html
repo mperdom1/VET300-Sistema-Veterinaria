@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacientes Hoy - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<!-- Indicador de carga -->
+<div id="authLoading" class="text-center mt-5 p-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+    <h4 class="text-primary">Cargando Pacientes...</h4>
+</div>
+
+<!-- Contenido principal -->
+<div id="mainContent" class="hidden-content">
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1><i class="bi bi-list-ul text-primary"></i> Pacientes de Hoy</h1>
+                        <p class="text-muted">Lista de pacientes programados para hoy</p>
+                    </div>
+                    <div>
+                        <span id="totalPacientes" class="badge bg-primary fs-6">0 pacientes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="filtroEstado" class="form-label">Estado</label>
+                                <select class="form-select" id="filtroEstado">
+                                    <option value="">Todos</option>
+                                    <option value="scheduled">Programado</option>
+                                    <option value="waiting">En Espera</option>
+                                    <option value="in_progress">En Consulta</option>
+                                    <option value="completed">Completado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filtroHora" class="form-label">Hora</label>
+                                <select class="form-select" id="filtroHora">
+                                    <option value="">Todas</option>
+                                    <option value="morning">Mañana (8-12)</option>
+                                    <option value="afternoon">Tarde (12-18)</option>
+                                    <option value="evening">Noche (18-22)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="buscarPaciente" class="form-label">Buscar</label>
+                                <input type="text" class="form-control" id="buscarPaciente" placeholder="Nombre del paciente...">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                                    <i class="bi bi-x-circle"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de pacientes -->
+        <div class="row">
+            <div class="col">
+                <div id="listaPacientes">
+                    <!-- Se carga dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para detalles del paciente -->
+        <div class="modal fade" id="modalPaciente" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalles del Paciente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="modalPacienteBody">
+                        <!-- Se carga dinámicamente -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" onclick="marcarCompletado()">Marcar Completado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK v12.5.0 -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, get, onValue, update } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // UI elements
+    const authLoading = document.getElementById('authLoading');
+    const mainContent = document.getElementById('mainContent');
+    const listaPacientes = document.getElementById('listaPacientes');
+    const totalPacientes = document.getElementById('totalPacientes');
+
+    let allAppointments = [];
+    let filteredAppointments = [];
+    let selectedPatient = null;
+
+    // Cargar navbar
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+    });
+
+    // Obtener fecha de hoy
+    function getTodayString() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    // Cargar citas del día
+    async function cargarCitasHoy() {
+        try {
+            const today = getTodayString();
+            const citasRef = ref(database, 'appointments');
+            const snapshot = await get(citasRef);
+            
+            if (snapshot.exists()) {
+                const todasCitas = Object.entries(snapshot.val()).map(([id, data]) => ({
+                    id,
+                    ...data
+                }));
+                
+                // Filtrar solo citas de hoy
+                allAppointments = todasCitas.filter(cita => cita.date === today);
+            } else {
+                // Datos de ejemplo con mascotas reales si no hay citas reales
+                allAppointments = await generarDatosEjemplo();
+            }
+            
+            filteredAppointments = [...allAppointments];
+            mostrarPacientes();
+            
+        } catch (error) {
+            console.error('Error cargando citas:', error);
+            allAppointments = await generarDatosEjemplo();
+            filteredAppointments = [...allAppointments];
+            mostrarPacientes();
+        }
+    }
+
+    // Cargar mascotas reales de las cuentas registradas
+    async function cargarMascotasReales() {
+        try {
+            const clientsRef = ref(database, 'clients');
+            const snapshot = await get(clientsRef);
+            
+            if (snapshot.exists()) {
+                const clients = Object.entries(snapshot.val()).map(([id, data]) => ({
+                    id,
+                    ...data
+                }));
+                
+                // Filtrar clientes que tienen mascotas
+                const mascotasReales = clients.filter(client => client.pet && client.pet.name);
+                
+                return mascotasReales;
+            }
+            
+            return [];
+        } catch (error) {
+            console.error('Error cargando mascotas reales:', error);
+            return [];
+        }
+    }
+
+    // Generar datos de ejemplo con mascotas reales
+    async function generarDatosEjemplo() {
+        const estados = ['scheduled', 'waiting', 'in_progress', 'completed'];
+        const horas = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
+        const razonesFicticias = ['Consulta general', 'Vacunación', 'Control', 'Revisión', 'Chequeo anual', 'Seguimiento'];
+        
+        // Cargar mascotas reales
+        const mascotasReales = await cargarMascotasReales();
+        
+        // Si no hay mascotas reales, usar nombres ficticios
+        const nombresFicticios = ['Luna', 'Max', 'Bella', 'Rocky', 'Lola', 'Charlie', 'Mia', 'Rex'];
+        const especiesFicticias = ['Perro', 'Gato', 'Conejo', 'Hamster'];
+        const razasFicticias = ['Golden Retriever', 'Labrador', 'Siamés', 'Persa', 'Mestizo'];
+        
+        // Crear citas usando mascotas reales si están disponibles
+        const numCitas = Math.max(8, mascotasReales.length);
+        
+        return Array.from({length: numCitas}, (_, i) => {
+            let petInfo, ownerInfo;
+            
+            if (i < mascotasReales.length) {
+                // Usar mascota real
+                const cliente = mascotasReales[i];
+                petInfo = {
+                    petName: cliente.pet.name,
+                    species: cliente.pet.species || 'No especificado',
+                    breed: cliente.pet.breed || 'Mestizo',
+                    age: cliente.pet.age || 'No especificado'
+                };
+                ownerInfo = {
+                    ownerName: cliente.name || cliente.owner || 'Propietario',
+                    phone: cliente.phone || 'No disponible',
+                    email: cliente.email || 'No disponible'
+                };
+            } else {
+                // Usar datos ficticios
+                petInfo = {
+                    petName: nombresFicticios[Math.floor(Math.random() * nombresFicticios.length)],
+                    species: especiesFicticias[Math.floor(Math.random() * especiesFicticias.length)],
+                    breed: razasFicticias[Math.floor(Math.random() * razasFicticias.length)],
+                    age: Math.floor(Math.random() * 10) + 1
+                };
+                ownerInfo = {
+                    ownerName: `Propietario ${i + 1}`,
+                    phone: `555-000${String(i + 1).padStart(2, '0')}`,
+                    email: `cliente${i + 1}@email.com`
+                };
+            }
+            
+            return {
+                id: `cita_${i}`,
+                ...petInfo,
+                ...ownerInfo,
+                time: horas[i % horas.length],
+                status: estados[Math.floor(Math.random() * estados.length)],
+                reason: razonesFicticias[Math.floor(Math.random() * razonesFicticias.length)],
+                date: getTodayString(),
+                notes: `Cita programada para ${petInfo.petName} - ${razonesFicticias[Math.floor(Math.random() * razonesFicticias.length)]}`
+            };
+        });
+    }
+
+    // Mostrar lista de pacientes
+    function mostrarPacientes() {
+        totalPacientes.textContent = `${filteredAppointments.length} pacientes`;
+        
+        if (filteredAppointments.length === 0) {
+            listaPacientes.innerHTML = `
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle fs-1 mb-3"></i>
+                    <h4>No hay pacientes programados</h4>
+                    <p>No se encontraron citas para los filtros seleccionados.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const html = filteredAppointments.map(cita => {
+            const statusColors = {
+                scheduled: 'primary',
+                waiting: 'warning',
+                in_progress: 'success',
+                completed: 'secondary'
+            };
+            
+            const statusTexts = {
+                scheduled: 'Programado',
+                waiting: 'En Espera',
+                in_progress: 'En Consulta',
+                completed: 'Completado'
+            };
+
+            return `
+                <div class="card mb-3 appointment-card" data-appointment-id="${cita.id}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="bi bi-heart-fill text-danger fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">${cita.petName || 'Nombre no disponible'}</h5>
+                                        <small class="text-muted">${cita.species || 'Especie'} - ${cita.breed || 'Raza'}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>${cita.time || 'Hora no disponible'}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <div>
+                                    <i class="bi bi-person"></i> ${cita.ownerName || 'Propietario no disponible'}
+                                </div>
+                                <small class="text-muted">${cita.phone || 'Teléfono no disponible'}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge bg-${statusColors[cita.status] || 'secondary'}">
+                                    ${statusTexts[cita.status] || 'Estado desconocido'}
+                                </span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button class="btn btn-outline-primary btn-sm" onclick="verDetalles('${cita.id}')">
+                                    <i class="bi bi-eye"></i> Ver
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <small class="text-muted">
+                                    <i class="bi bi-clipboard-check"></i> ${cita.reason || 'Motivo no especificado'}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        listaPacientes.innerHTML = html;
+    }
+
+    // Ver detalles del paciente
+    window.verDetalles = function(citaId) {
+        const cita = allAppointments.find(c => c.id === citaId);
+        if (!cita) return;
+        
+        selectedPatient = cita;
+        
+        const modalBody = document.getElementById('modalPacienteBody');
+        modalBody.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h6><i class="bi bi-heart-fill text-danger"></i> Información del Paciente</h6>
+                    <p><strong>Nombre:</strong> ${cita.petName || 'No disponible'}</p>
+                    <p><strong>Especie:</strong> ${cita.species || 'No disponible'}</p>
+                    <p><strong>Raza:</strong> ${cita.breed || 'No disponible'}</p>
+                    <p><strong>Edad:</strong> ${cita.age || 'No disponible'}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="bi bi-person"></i> Información del Propietario</h6>
+                    <p><strong>Nombre:</strong> ${cita.ownerName || 'No disponible'}</p>
+                    <p><strong>Teléfono:</strong> ${cita.phone || 'No disponible'}</p>
+                    <p><strong>Email:</strong> ${cita.email || 'No disponible'}</p>
+                </div>
+                <div class="col-12">
+                    <h6><i class="bi bi-calendar-check"></i> Detalles de la Cita</h6>
+                    <p><strong>Fecha:</strong> ${new Date(cita.date).toLocaleDateString()}</p>
+                    <p><strong>Hora:</strong> ${cita.time}</p>
+                    <p><strong>Motivo:</strong> ${cita.reason || 'No especificado'}</p>
+                    <p><strong>Estado:</strong> <span class="badge bg-primary">${cita.status}</span></p>
+                </div>
+                <div class="col-12">
+                    <h6><i class="bi bi-clipboard"></i> Notas</h6>
+                    <p>${cita.notes || 'Sin notas adicionales'}</p>
+                </div>
+            </div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalPaciente'));
+        modal.show();
+    };
+
+    // Marcar cita como completada
+    window.marcarCompletado = function() {
+        if (!selectedPatient) return;
+        
+        // Aquí actualizarías el estado en Firebase
+        console.log('Marcando como completado:', selectedPatient.id);
+        
+        // Simulación del cambio de estado
+        const index = allAppointments.findIndex(c => c.id === selectedPatient.id);
+        if (index !== -1) {
+            allAppointments[index].status = 'completed';
+            filtrarPacientes();
+        }
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalPaciente'));
+        modal.hide();
+    };
+
+    // Filtrar pacientes
+    function filtrarPacientes() {
+        const estado = document.getElementById('filtroEstado').value;
+        const hora = document.getElementById('filtroHora').value;
+        const busqueda = document.getElementById('buscarPaciente').value.toLowerCase();
+        
+        filteredAppointments = allAppointments.filter(cita => {
+            // Filtro por estado
+            if (estado && cita.status !== estado) return false;
+            
+            // Filtro por hora
+            if (hora) {
+                const citaHora = parseInt(cita.time?.split(':')[0] || '0');
+                if (hora === 'morning' && (citaHora < 8 || citaHora >= 12)) return false;
+                if (hora === 'afternoon' && (citaHora < 12 || citaHora >= 18)) return false;
+                if (hora === 'evening' && (citaHora < 18 || citaHora >= 22)) return false;
+            }
+            
+            // Filtro por búsqueda
+            if (busqueda) {
+                const nombrePet = (cita.petName || '').toLowerCase();
+                const nombreOwner = (cita.ownerName || '').toLowerCase();
+                if (!nombrePet.includes(busqueda) && !nombreOwner.includes(busqueda)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        mostrarPacientes();
+    }
+
+    // Limpiar filtros
+    window.limpiarFiltros = function() {
+        document.getElementById('filtroEstado').value = '';
+        document.getElementById('filtroHora').value = '';
+        document.getElementById('buscarPaciente').value = '';
+        filtrarPacientes();
+    };
+
+    // Event listeners para filtros
+    document.getElementById('filtroEstado').addEventListener('change', filtrarPacientes);
+    document.getElementById('filtroHora').addEventListener('change', filtrarPacientes);
+    document.getElementById('buscarPaciente').addEventListener('input', filtrarPacientes);
+
+    // Autenticación
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            await cargarCitasHoy();
+            mainContent.classList.remove('hidden-content');
+            authLoading.style.display = 'none';
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+</script>
+
+</body>
+</html>

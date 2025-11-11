@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Michelle - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Debug - Perfil de Michelle</h2>
+        <div id="loading">Cargando información...</div>
+        <div id="results"></div>
+        <button class="btn btn-primary mt-3" onclick="checkMichelle()">Verificar Perfil</button>
+        <button class="btn btn-success mt-3" onclick="createMichelleAdmin()">Crear/Actualizar como Admin</button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, get, set } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
+
+    // Configuración de Firebase (misma que login.html)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    window.checkMichelle = async function() {
+        const resultsDiv = document.getElementById('results');
+        
+        try {
+            // Sign in as Michelle
+            const userCredential = await signInWithEmailAndPassword(auth, 'mperdomo591@gmail.com', 'Admin123');
+            const user = userCredential.user;
+            
+            console.log('Michelle authenticated:', user);
+            
+            // Check her profile in the database
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+            
+            let html = `
+                <div class="alert alert-info">
+                    <h4>Información de Autenticación</h4>
+                    <p><strong>UID:</strong> ${user.uid}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Email verificado:</strong> ${user.emailVerified}</p>
+                </div>
+            `;
+            
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                html += `
+                    <div class="alert alert-success">
+                        <h4>Perfil en Base de Datos</h4>
+                        <pre>${JSON.stringify(userData, null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="alert alert-warning">
+                        <h4>No se encontró perfil en la base de datos</h4>
+                        <p>Michelle no tiene un perfil configurado en /users/${user.uid}</p>
+                    </div>
+                `;
+            }
+            
+            resultsDiv.innerHTML = html;
+            
+        } catch (error) {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error</h4>
+                    <p>${error.message}</p>
+                    <p>Código: ${error.code}</p>
+                </div>
+            `;
+        }
+    };
+
+    window.createMichelleAdmin = async function() {
+        try {
+            // First authenticate
+            const userCredential = await signInWithEmailAndPassword(auth, 'mperdomo591@gmail.com', 'Admin123');
+            const user = userCredential.user;
+            
+            // Create/update Michelle's profile with admin permissions
+            const michelleProfile = {
+                email: 'mperdomo591@gmail.com',
+                firstName: 'Michelle',
+                lastName: 'Perdomo',
+                role: 'admin',
+                isActive: true,
+                permissions: {
+                    canCreateUsers: true,
+                    canEditUsers: true,
+                    canDeleteUsers: true,
+                    canViewReports: true,
+                    canManageAppointments: true,
+                    canManageInvoices: true,
+                    canManagePatients: true,
+                    canManageInventory: true,
+                    canManageSettings: true
+                },
+                department: 'Administración',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString()
+            };
+            
+            const userRef = ref(database, 'users/' + user.uid);
+            await set(userRef, michelleProfile);
+            
+            document.getElementById('results').innerHTML = `
+                <div class="alert alert-success">
+                    <h4>✅ Perfil de Michelle Actualizado</h4>
+                    <p>Michelle ahora tiene permisos completos de administrador.</p>
+                    <p><strong>Rol:</strong> Admin</p>
+                    <p><strong>Permisos:</strong> Completos (incluyendo reportes)</p>
+                </div>
+            `;
+            
+        } catch (error) {
+            document.getElementById('results').innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error creando perfil</h4>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
+    };
+</script>
+</body>
+</html>

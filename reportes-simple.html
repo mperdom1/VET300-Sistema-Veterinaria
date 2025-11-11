@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes Simple - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">📊 Reportes y Estadísticas</h1>
+                    <p class="text-muted">Análisis y métricas del sistema VET360</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Principales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill text-primary large-icon"></i>
+                    <h3 class="mt-3">42</h3>
+                    <p class="text-muted">Total Pacientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check-fill text-success large-icon"></i>
+                    <h3 class="mt-3">8</h3>
+                    <p class="text-muted">Citas Hoy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-dollar text-warning large-icon"></i>
+                    <h3 class="mt-3">$15,750</h3>
+                    <p class="text-muted">Ingresos Mes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-heart-pulse-fill text-info large-icon"></i>
+                    <h3 class="mt-3">92%</h3>
+                    <p class="text-muted">Satisfacción</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reportes Disponibles -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">📋 Reportes Disponibles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mb-3 report-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-file-earmark-medical text-primary mb-3" style="font-size: 3rem;"></i>
+                                    <h6>Reporte de Pacientes</h6>
+                                    <p class="text-muted small">Listado completo de pacientes</p>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="generateSimpleReport('pacientes')">
+                                        <i class="bi bi-download me-1"></i> Generar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card mb-3 report-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-event text-success mb-3" style="font-size: 3rem;"></i>
+                                    <h6>Reporte de Citas</h6>
+                                    <p class="text-muted small">Citas por período</p>
+                                    <button class="btn btn-sm btn-outline-success" onclick="generateSimpleReport('citas')">
+                                        <i class="bi bi-download me-1"></i> Generar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card mb-3 report-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-receipt text-warning mb-3" style="font-size: 3rem;"></i>
+                                    <h6>Reporte Financiero</h6>
+                                    <p class="text-muted small">Ingresos y gastos</p>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="generateSimpleReport('financiero')">
+                                        <i class="bi bi-download me-1"></i> Generar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Cargar navbar
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navbar-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+
+    // Función simple para generar reportes
+    function generateSimpleReport(tipo) {
+        const reportData = {
+            'pacientes': {
+                title: '📋 Reporte de Pacientes - VET360',
+                data: `
+                    <h3>Pacientes Registrados</h3>
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th style="padding: 8px;">Mascota</th>
+                                <th style="padding: 8px;">Especie</th>
+                                <th style="padding: 8px;">Propietario</th>
+                                <th style="padding: 8px;">Teléfono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 8px;">Luna</td><td style="padding: 8px;">Perro</td><td style="padding: 8px;">María García</td><td style="padding: 8px;">555-0001</td></tr>
+                            <tr><td style="padding: 8px;">Max</td><td style="padding: 8px;">Gato</td><td style="padding: 8px;">Juan Pérez</td><td style="padding: 8px;">555-0002</td></tr>
+                            <tr><td style="padding: 8px;">Bella</td><td style="padding: 8px;">Perro</td><td style="padding: 8px;">Ana López</td><td style="padding: 8px;">555-0003</td></tr>
+                        </tbody>
+                    </table>
+                `
+            },
+            'citas': {
+                title: '📅 Reporte de Citas - VET360',
+                data: `
+                    <h3>Citas Programadas</h3>
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th style="padding: 8px;">Fecha</th>
+                                <th style="padding: 8px;">Hora</th>
+                                <th style="padding: 8px;">Paciente</th>
+                                <th style="padding: 8px;">Servicio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 8px;">2025-11-10</td><td style="padding: 8px;">09:00</td><td style="padding: 8px;">Luna</td><td style="padding: 8px;">Consulta General</td></tr>
+                            <tr><td style="padding: 8px;">2025-11-10</td><td style="padding: 8px;">10:30</td><td style="padding: 8px;">Max</td><td style="padding: 8px;">Vacunación</td></tr>
+                            <tr><td style="padding: 8px;">2025-11-10</td><td style="padding: 8px;">14:00</td><td style="padding: 8px;">Bella</td><td style="padding: 8px;">Control</td></tr>
+                        </tbody>
+                    </table>
+                `
+            },
+            'financiero': {
+                title: '💰 Reporte Financiero - VET360',
+                data: `
+                    <h3>Resumen Financiero</h3>
+                    <p><strong>Ingresos del Mes:</strong> $15,750</p>
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th style="padding: 8px;">Servicio</th>
+                                <th style="padding: 8px;">Cantidad</th>
+                                <th style="padding: 8px;">Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 8px;">Consultas</td><td style="padding: 8px;">45</td><td style="padding: 8px;">$9,000</td></tr>
+                            <tr><td style="padding: 8px;">Vacunaciones</td><td style="padding: 8px;">32</td><td style="padding: 8px;">$4,800</td></tr>
+                            <tr><td style="padding: 8px;">Cirugías</td><td style="padding: 8px;">5</td><td style="padding: 8px;">$1,950</td></tr>
+                        </tbody>
+                    </table>
+                `
+            }
+        };
+
+        const report = reportData[tipo];
+        if (!report) {
+            alert('Tipo de reporte no válido');
+            return;
+        }
+
+        const reporteCompleto = `
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <title>${report.title}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f8f9fa; }
+                    h2, h3 { color: #0d6efd; }
+                </style>
+            </head>
+            <body>
+                <h2>${report.title}</h2>
+                <p><strong>Fecha de generación:</strong> ${new Date().toLocaleDateString()}</p>
+                <hr>
+                ${report.data}
+                <hr>
+                <p><em>Reporte generado por VET360 - ${new Date().toLocaleString()}</em></p>
+            </body>
+            </html>
+        `;
+
+        // Descargar el reporte
+        const blob = new Blob([reporteCompleto], { type: 'text/html' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        a.href = url;
+        a.download = `reporte-${tipo}-${new Date().toISOString().split('T')[0]}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        // Mostrar notificación simple
+        alert(`✅ Reporte de ${tipo} descargado correctamente`);
+    }
+
+    // Hacer la función global
+    window.generateSimpleReport = generateSimpleReport;
+</script>
+
+</body>
+</html>

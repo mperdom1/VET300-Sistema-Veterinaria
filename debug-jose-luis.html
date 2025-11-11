@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Usuario José Luis - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card p-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="./assets/imagenes/logovet360opcion 1.jpg" alt="VET360 Logo" class="logo-img">
+                        <h1 class="logo">VET360 🐾</h1>
+                        <h2>Verificar Usuario José Luis</h2>
+                        <p class="text-muted">Diagnóstico y reparación de perfil</p>
+                    </div>
+                    
+                    <div id="error-message" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="success-message" class="alert alert-success d-none" role="alert"></div>
+                    <div id="info-message" class="alert alert-info" role="alert">
+                        🔧 Verificando el perfil de José Luis Domínguez (10luisdominguez@gmail.com)
+                    </div>
+                    
+                    <div id="user-status" class="mb-3">
+                        <h5>📊 Estado del Usuario</h5>
+                        <div id="profile-info" class="alert alert-secondary">
+                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                            Verificando perfil...
+                        </div>
+                    </div>
+                    
+                    <form id="fix-form" class="d-none">
+                        <div class="alert alert-warning">
+                            ⚠️ Se detectaron problemas. Ingresa la contraseña para repararlos:
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña de José Luis</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="fix-btn">
+                                <span class="btn-text">Reparar Perfil</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="actions" class="mt-3">
+                        <div class="d-grid gap-2">
+                            <button id="check-btn" class="btn btn-outline-primary">
+                                🔍 Verificar de Nuevo
+                            </button>
+                            <a href="login.html" class="btn btn-success">
+                                ✅ Ir a Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK v12.5.0 -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
+    import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZoyZqhODCH90zcPdY_iT8mhh2S-X5FRE",
+        authDomain: "vet360-d262a.firebaseapp.com",
+        databaseURL: "https://vet360-d262a-default-rtdb.firebaseio.com",
+        projectId: "vet360-d262a",
+        storageBucket: "vet360-d262a.firebasestorage.app",
+        messagingSenderId: "184009559961",
+        appId: "1:184009559961:web:12b1311b6224a5d58ecd08",
+        measurementId: "G-5K02J1Z7VZ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // UI elements
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const infoMessage = document.getElementById('info-message');
+    const profileInfo = document.getElementById('profile-info');
+    const fixForm = document.getElementById('fix-form');
+    const fixBtn = document.getElementById('fix-btn');
+    const checkBtn = document.getElementById('check-btn');
+
+    const JOSE_EMAIL = '10luisdominguez@gmail.com';
+
+    // Admin permissions
+    const ADMIN_PERMISSIONS = [
+        'full_access', 'manage_users', 'create_users', 'edit_users', 'delete_users',
+        'view_reports', 'system_settings', 'manage_billing', 'view_patients',
+        'create_patients', 'edit_patients', 'delete_patients', 'view_appointments',
+        'create_appointments', 'edit_appointments', 'delete_appointments',
+        'view_medical_records', 'create_medical_records', 'edit_medical_records'
+    ];
+
+    // Show/hide functions
+    function showElement(element) { element.classList.remove('d-none'); }
+    function hideElement(element) { element.classList.add('d-none'); }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        showElement(errorMessage);
+        hideElement(successMessage);
+    }
+
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        showElement(successMessage);
+        hideElement(errorMessage);
+    }
+
+    function hideMessages() {
+        hideElement(errorMessage);
+        hideElement(successMessage);
+    }
+
+    // Check user profile
+    async function checkUserProfile() {
+        try {
+            hideMessages();
+            profileInfo.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div>Verificando perfil...';
+
+            // Try to authenticate with a test (we don't know the password yet)
+            console.log('Checking profile for:', JOSE_EMAIL);
+            
+            // First, let's try to get user by email from database
+            // Since we can't search by email directly, we'll check all users
+            const usersRef = ref(database, 'users');
+            const snapshot = await get(usersRef);
+            
+            let foundUser = null;
+            let userId = null;
+            
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                for (const uid in users) {
+                    if (users[uid].email === JOSE_EMAIL) {
+                        foundUser = users[uid];
+                        userId = uid;
+                        break;
+                    }
+                }
+            }
+
+            if (foundUser) {
+                const status = analyzeProfile(foundUser);
+                displayProfileStatus(status, foundUser);
+                
+                if (!status.isValid) {
+                    showElement(fixForm);
+                }
+            } else {
+                profileInfo.innerHTML = `
+                    <div class="text-danger">
+                        <i class="bi bi-x-circle me-2"></i>
+                        <strong>❌ Usuario no encontrado</strong>
+                        <br><small>No existe perfil para ${JOSE_EMAIL}</small>
+                    </div>
+                `;
+                showElement(fixForm);
+            }
+
+        } catch (error) {
+            console.error('Error checking profile:', error);
+            profileInfo.innerHTML = `
+                <div class="text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>🚨 Error de conexión</strong>
+                    <br><small>${error.message}</small>
+                </div>
+            `;
+        }
+    }
+
+    // Analyze profile completeness
+    function analyzeProfile(profile) {
+        const issues = [];
+        let isValid = true;
+
+        if (!profile.role || profile.role !== 'admin') {
+            issues.push('❌ Rol incorrecto o faltante');
+            isValid = false;
+        }
+
+        if (!profile.permissions || profile.permissions.length === 0) {
+            issues.push('❌ Permisos faltantes');
+            isValid = false;
+        }
+
+        if (profile.isActive === false) {
+            issues.push('❌ Usuario desactivado');
+            isValid = false;
+        }
+
+        if (!profile.firstName || !profile.lastName) {
+            issues.push('❌ Información personal incompleta');
+            isValid = false;
+        }
+
+        if (!profile.employeeId) {
+            issues.push('❌ ID de empleado faltante');
+            isValid = false;
+        }
+
+        return { isValid, issues };
+    }
+
+    // Display profile status
+    function displayProfileStatus(status, profile) {
+        if (status.isValid) {
+            profileInfo.innerHTML = `
+                <div class="text-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>✅ Perfil completo y válido</strong>
+                    <br><small>Rol: ${profile.role} | Activo: ${profile.isActive !== false ? 'Sí' : 'No'}</small>
+                    <br><small>Nombre: ${profile.firstName} ${profile.lastName}</small>
+                </div>
+            `;
+            showSuccess('✅ El perfil de José Luis está correcto. El problema puede ser de servidor local.');
+        } else {
+            profileInfo.innerHTML = `
+                <div class="text-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>⚠️ Perfil con problemas:</strong>
+                    <ul class="mb-0 mt-2">
+                        ${status.issues.map(issue => `<li>${issue}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+    }
+
+    // Fix user profile
+    async function fixUserProfile(password) {
+        try {
+            fixBtn.querySelector('.btn-text').textContent = 'Reparando...';
+            showElement(fixBtn.querySelector('.spinner-border'));
+            fixBtn.disabled = true;
+            hideMessages();
+
+            console.log('Attempting to fix profile for:', JOSE_EMAIL);
+
+            // Authenticate user
+            const userCredential = await signInWithEmailAndPassword(auth, JOSE_EMAIL, password);
+            const user = userCredential.user;
+
+            console.log('User authenticated, UID:', user.uid);
+
+            // Create/update admin profile
+            const adminProfile = {
+                uid: user.uid,
+                email: JOSE_EMAIL,
+                firstName: 'José Luis',
+                lastName: 'Domínguez',
+                role: 'admin',
+                department: 'administracion',
+                employeeId: 'VET360-ADMIN-002',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                requirePasswordChange: false,
+                isActive: true,
+                permissions: ADMIN_PERMISSIONS,
+                isConfigured: true,
+                profileCompleted: true,
+                isDefaultAdmin: true,
+                lastLogin: new Date().toISOString()
+            };
+
+            // Save to database
+            await set(ref(database, 'users/' + user.uid), adminProfile);
+            
+            // Sign out
+            await signOut(auth);
+
+            showSuccess('✅ Perfil de José Luis reparado exitosamente!');
+            hideElement(fixForm);
+            
+            // Re-check profile
+            setTimeout(checkUserProfile, 1000);
+
+        } catch (error) {
+            console.error('Error fixing profile:', error);
+            
+            let errorMsg = '🚨 Error reparando perfil.';
+            if (error.code === 'auth/wrong-password') {
+                errorMsg = '❌ Contraseña incorrecta.';
+            } else if (error.code === 'auth/user-not-found') {
+                errorMsg = '❌ Usuario no encontrado en Firebase Auth.';
+            }
+            
+            showError(errorMsg);
+        } finally {
+            fixBtn.querySelector('.btn-text').textContent = 'Reparar Perfil';
+            hideElement(fixBtn.querySelector('.spinner-border'));
+            fixBtn.disabled = false;
+        }
+    }
+
+    // Event listeners
+    checkBtn.addEventListener('click', checkUserProfile);
+    
+    fixForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const password = document.getElementById('password').value;
+        if (password.length < 6) {
+            showError('❌ La contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+        fixUserProfile(password);
+    });
+
+    // Initial check
+    checkUserProfile();
+</script>
+
+</body>
+</html>
