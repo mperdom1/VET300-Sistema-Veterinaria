@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - VET360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/manual-styles.css">
+    <style>
+        .manual-sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .manual-sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 2px 0;
+        }
+        
+        .manual-sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .manual-sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        
+        .manual-content {
+            padding: 20px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .alert-info-custom {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #0d47a1;
+        }
+        
+        .alert-success-custom {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4caf50;
+            color: #1b5e20;
+        }
+        
+        .alert-warning-custom {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            color: #e65100;
+        }
+        
+        .code-block {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        
+        .screenshot-placeholder {
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+            margin: 15px 0;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: none;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-top:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar de navegación -->
+        <div class="col-lg-3 manual-sidebar p-4">
+            <div class="text-center mb-4">
+                <h4><i class="bi bi-book"></i> Manual VET360</h4>
+                <p class="small opacity-75">Guía completa del sistema</p>
+            </div>
+            
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#inicio">
+                    <i class="bi bi-house-door me-2"></i> Inicio
+                </a>
+                <a class="nav-link" href="#acceso">
+                    <i class="bi bi-key me-2"></i> Acceso al Sistema
+                </a>
+                <a class="nav-link" href="#dashboard">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
+                <a class="nav-link" href="#casos-medicos">
+                    <i class="bi bi-heart-pulse me-2"></i> Casos Médicos
+                </a>
+                <a class="nav-link" href="#facturacion">
+                    <i class="bi bi-receipt me-2"></i> Facturación
+                </a>
+                <a class="nav-link" href="#tienda">
+                    <i class="bi bi-shop me-2"></i> Tienda E-commerce
+                </a>
+                <a class="nav-link" href="#administracion">
+                    <i class="bi bi-gear me-2"></i> Administración
+                </a>
+                <a class="nav-link" href="#reportes">
+                    <i class="bi bi-graph-up me-2"></i> Reportes
+                </a>
+                <a class="nav-link" href="#problemas">
+                    <i class="bi bi-question-circle me-2"></i> Problemas Comunes
+                </a>
+                <a class="nav-link" href="#contacto">
+                    <i class="bi bi-envelope me-2"></i> Contacto y Soporte
+                </a>
+            </nav>
+            
+            <div class="mt-4 pt-4 border-top">
+                <a href="dashboard.html" class="btn btn-outline-light btn-sm w-100">
+                    <i class="bi bi-arrow-left me-2"></i> Volver al Dashboard
+                </a>
+            </div>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="col-lg-9 manual-content">
+            <!-- Sección: Inicio -->
+            <section id="inicio" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="card-title text-primary">
+                                    <i class="bi bi-heart-pulse-fill feature-icon"></i>
+                                    Manual de Usuario VET360
+                                </h1>
+                                <p class="card-text lead">
+                                    Bienvenido al manual completo del Sistema Integral de Gestión Veterinaria VET360. 
+                                    Esta guía te ayudará a aprovechar al máximo todas las funcionalidades del sistema.
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="bi bi-book-fill large-icon-primary"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info-custom mt-4">
+                            <h6><i class="bi bi-info-circle me-2"></i>Sobre este manual</h6>
+                            <p class="mb-0">
+                                Este manual está organizado por módulos del sistema. Cada sección incluye instrucciones paso a paso, 
+                                ejemplos prácticos y consejos para un uso eficiente.
+                            </p>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <i class="bi bi-people-fill feature-icon"></i>
+                                    <h6>Para todos los usuarios</h6>
+                                    <p class="small text-muted">Veterinarios, recepcionistas, administradores</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <i class="bi bi-clock-fill feature-icon"></i>
+                                    <h6>Ahorra tiempo</h6>
+                                    <p class="small text-muted">Aprende rápidamente las funciones principales</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <i class="bi bi-shield-check-fill feature-icon"></i>
+                                    <h6>Siempre actualizado</h6>
+                                    <p class="small text-muted">Información actualizada del sistema</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Acceso al Sistema -->
+            <section id="acceso" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-key-fill text-primary me-2"></i>
+                            Acceso al Sistema
+                        </h2>
+                        
+                        <h4 class="mt-4">Iniciar Sesión</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ol class="list-unstyled">
+                                    <li class="mb-3">
+                                        <span class="step-number">1</span>
+                                        Abre tu navegador web y ve a la URL de VET360
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">2</span>
+                                        Introduce tu email registrado en el campo correspondiente
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">3</span>
+                                        Escribe tu contraseña en el campo de contraseña
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">4</span>
+                                        Haz clic en "Iniciar Sesión" para acceder al sistema
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="screenshot-placeholder">
+                                    <i class="bi bi-image medium-icon"></i>
+                                    <p>Pantalla de Login de VET360</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning-custom mt-4">
+                            <h6><i class="bi bi-exclamation-triangle me-2"></i>Requisitos de contraseña</h6>
+                            <ul class="mb-0">
+                                <li>Mínimo 8 caracteres</li>
+                                <li>Al menos una letra mayúscula</li>
+                                <li>Al menos un número</li>
+                                <li>Al menos un carácter especial (!@#$%^&*)</li>
+                            </ul>
+                        </div>
+                        
+                        <h4 class="mt-4">Recuperar Contraseña</h4>
+                        <p>Si has olvidado tu contraseña:</p>
+                        <ol>
+                            <li>En la página de login, haz clic en "¿Olvidaste tu contraseña?"</li>
+                            <li>Introduce tu email registrado</li>
+                            <li>Revisa tu correo electrónico para recibir el enlace de restablecimiento</li>
+                            <li>Sigue las instrucciones del correo para crear una nueva contraseña</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Dashboard -->
+            <section id="dashboard" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-speedometer2 text-primary me-2"></i>
+                            Dashboard Principal
+                        </h2>
+                        
+                        <p class="lead">
+                            El dashboard es tu página principal, personalizada según tu rol en la clínica.
+                        </p>
+                        
+                        <h4>Elementos del Dashboard</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-primary mb-3">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="bi bi-person-circle me-2"></i>Header de Bienvenida
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Muestra tu nombre, rol y avatar personalizado.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-success mb-3">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="bi bi-graph-up me-2"></i>KPIs Personalizados
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Métricas importantes según tu función en la clínica.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>Dashboards por Rol</h4>
+                        <div class="accordion" id="dashboardAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#veterinario">
+                                        <i class="bi bi-heart-pulse me-2"></i>Dashboard del Veterinario
+                                    </button>
+                                </h2>
+                                <div id="veterinario" class="accordion-collapse collapse show" data-bs-parent="#dashboardAccordion">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li><strong>Casos del día:</strong> Pacientes programados para hoy</li>
+                                            <li><strong>Casos activos:</strong> Tratamientos en curso</li>
+                                            <li><strong>Acceso rápido:</strong> Crear nuevo caso médico</li>
+                                            <li><strong>Historial reciente:</strong> Últimos pacientes atendidos</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#recepcionista">
+                                        <i class="bi bi-receipt me-2"></i>Dashboard del Recepcionista
+                                    </button>
+                                </h2>
+                                <div id="recepcionista" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li><strong>Facturas del día:</strong> Ingresos y transacciones</li>
+                                            <li><strong>Citas programadas:</strong> Agenda del día</li>
+                                            <li><strong>Cuentas por cobrar:</strong> Pagos pendientes</li>
+                                            <li><strong>Acceso rápido:</strong> Generar nueva factura</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#administrador">
+                                        <i class="bi bi-gear me-2"></i>Dashboard del Administrador
+                                    </button>
+                                </h2>
+                                <div id="administrador" class="accordion-collapse collapse" data-bs-parent="#dashboardAccordion">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li><strong>Métricas generales:</strong> Rendimiento de la clínica</li>
+                                            <li><strong>Usuarios activos:</strong> Personal conectado</li>
+                                            <li><strong>Reportes ejecutivos:</strong> Análisis de negocio</li>
+                                            <li><strong>Gestión del sistema:</strong> Configuración y usuarios</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Casos Médicos -->
+            <section id="casos-medicos" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-heart-pulse text-primary me-2"></i>
+                            Gestión de Casos Médicos
+                        </h2>
+                        
+                        <div class="alert alert-info-custom mb-4">
+                            <h6><i class="bi bi-info-circle me-2"></i>Solo para veterinarios</h6>
+                            <p class="mb-0">Este módulo está disponible únicamente para usuarios con rol de veterinario.</p>
+                        </div>
+                        
+                        <h4>Crear Nuevo Caso</h4>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <ol class="list-unstyled">
+                                    <li class="mb-3">
+                                        <span class="step-number">1</span>
+                                        <strong>Acceder al módulo:</strong> Desde el dashboard, haz clic en "Nuevo Caso" o ve al menú "Casos Activos"
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">2</span>
+                                        <strong>Información del paciente:</strong>
+                                        <ul class="mt-2">
+                                            <li>Nombre del animal</li>
+                                            <li>Especie (perro, gato, etc.)</li>
+                                            <li>Raza y edad</li>
+                                            <li>Datos del propietario</li>
+                                        </ul>
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">3</span>
+                                        <strong>Diagnóstico inicial:</strong> Describe los síntomas y diagnóstico preliminar
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">4</span>
+                                        <strong>Tratamiento:</strong> Prescribe medicamentos y procedimientos
+                                    </li>
+                                    <li class="mb-3">
+                                        <span class="step-number">5</span>
+                                        <strong>Guardar:</strong> Haz clic en "Crear Caso" para registrar la información
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="screenshot-placeholder">
+                                    <i class="bi bi-plus-circle medium-icon"></i>
+                                    <p>Formulario Nuevo Caso</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="mt-4">Gestionar Casos Existentes</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Acción</th>
+                                        <th>Descripción</th>
+                                        <th>Cómo hacerlo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="bi bi-eye text-info"></i> Ver historial</td>
+                                        <td>Consultar información completa del caso</td>
+                                        <td>Clic en el nombre del paciente</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-pencil text-warning"></i> Actualizar</td>
+                                        <td>Modificar diagnóstico o tratamiento</td>
+                                        <td>Botón "Editar" en la lista de casos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-plus text-success"></i> Seguimiento</td>
+                                        <td>Añadir notas de evolución</td>
+                                        <td>Botón "Agregar Nota" en el caso</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-check-circle text-success"></i> Cerrar</td>
+                                        <td>Marcar caso como completado</td>
+                                        <td>Cambiar estado a "Cerrado"</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="alert alert-success-custom mt-4">
+                            <h6><i class="bi bi-lightbulb me-2"></i>Consejo profesional</h6>
+                            <p class="mb-0">
+                                Usa las notas de seguimiento para registrar la evolución del paciente. 
+                                Esto ayuda a mantener un historial médico completo y facilita futuras consultas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Facturación -->
+            <section id="facturacion" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-receipt text-primary me-2"></i>
+                            Sistema de Facturación
+                        </h2>
+                        
+                        <h4>Crear Nueva Factura</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Proceso paso a paso:</h5>
+                                <ol>
+                                    <li><strong>Seleccionar cliente:</strong> Busca y selecciona el cliente o paciente</li>
+                                    <li><strong>Añadir servicios:</strong> Agrega los servicios prestados:
+                                        <ul>
+                                            <li>Consulta veterinaria</li>
+                                            <li>Medicamentos</li>
+                                            <li>Procedimientos especiales</li>
+                                            <li>Cirugías</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Revisar totales:</strong> El sistema calcula automáticamente subtotales, impuestos y total</li>
+                                    <li><strong>Método de pago:</strong> Selecciona efectivo, tarjeta o transferencia</li>
+                                    <li><strong>Generar:</strong> Crea e imprime la factura</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <i class="bi bi-calculator me-2"></i>Cálculo Automático
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="code-block">
+                                            Consulta: $50.000<br>
+                                            Medicamento: $25.000<br>
+                                            ----------------------<br>
+                                            Subtotal: $75.000<br>
+                                            IVA (19%): $14.250<br>
+                                            ----------------------<br>
+                                            <strong>Total: $89.250</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="mt-4">Estados de Facturas</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-clock text-warning status-icon"></i>
+                                    <h6 class="mt-2">Pendiente</h6>
+                                    <p class="small text-muted">No pagada</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-check-circle text-success status-icon"></i>
+                                    <h6 class="mt-2">Pagada</h6>
+                                    <p class="small text-muted">Completamente pagada</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-dash-circle text-info status-icon"></i>
+                                    <h6 class="mt-2">Parcial</h6>
+                                    <p class="small text-muted">Pago parcial recibido</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-x-circle text-danger status-icon"></i>
+                                    <h6 class="mt-2">Vencida</h6>
+                                    <p class="small text-muted">Plazo expirado</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Tienda E-commerce -->
+            <section id="tienda" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-shop text-primary me-2"></i>
+                            Tienda E-commerce
+                        </h2>
+                        
+                        <p class="lead">La tienda VET360 permite vender productos directamente a los clientes.</p>
+                        
+                        <h4>Navegar por el Catálogo</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Categorías disponibles:</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-bag text-success me-3"></i>
+                                        <div>
+                                            <strong>Alimentos para mascotas</strong>
+                                            <small class="d-block text-muted">Concentrados, snacks, dietas especiales</small>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-capsule text-danger me-3"></i>
+                                        <div>
+                                            <strong>Medicamentos</strong>
+                                            <small class="d-block text-muted">Antibióticos, antiparasitarios, vitaminas</small>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-gift text-info me-3"></i>
+                                        <div>
+                                            <strong>Accesorios</strong>
+                                            <small class="d-block text-muted">Juguetes, correas, camas, transportadoras</small>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-droplet text-primary me-3"></i>
+                                        <div>
+                                            <strong>Higiene</strong>
+                                            <small class="d-block text-muted">Shampoos, cepillos, cortauñas</small>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Filtros de búsqueda:</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="price-range">Por precio:</label>
+                                            <input type="range" class="form-range" id="price-range" title="Rango de precios" disabled>
+                                            <small class="text-muted">$10.000 - $500.000</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="brand-select">Por marca:</label>
+                                            <select class="form-select" id="brand-select" title="Seleccionar marca" disabled>
+                                                <option>Todas las marcas</option>
+                                                <option>Purina</option>
+                                                <option>Royal Canin</option>
+                                                <option>Hills</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Por calificación:</label>
+                                            <div>
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <i class="bi bi-star text-warning"></i>
+                                                4+ estrellas
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="mt-4">Proceso de Compra</h4>
+                        <div class="row">
+                            <div class="col-md-2 text-center">
+                                <div class="step-number">1</div>
+                                <p class="small">Explorar productos</p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="step-number">2</div>
+                                <p class="small">Añadir al carrito</p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="step-number">3</div>
+                                <p class="small">Revisar pedido</p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="step-number">4</div>
+                                <p class="small">Datos de envío</p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="step-number">5</div>
+                                <p class="small">Método de pago</p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="step-number">6</div>
+                                <p class="small">Confirmar pedido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Administración -->
+            <section id="administracion" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-gear text-primary me-2"></i>
+                            Administración del Sistema
+                        </h2>
+                        
+                        <div class="alert alert-warning-custom mb-4">
+                            <h6><i class="bi bi-shield-exclamation me-2"></i>Solo para administradores</h6>
+                            <p class="mb-0">Estas funciones requieren permisos de administrador.</p>
+                        </div>
+                        
+                        <h4>Gestión de Usuarios</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Crear nuevo usuario:</h5>
+                                <ol>
+                                    <li>Ve a "Administración" → "Usuarios"</li>
+                                    <li>Haz clic en "Crear Usuario"</li>
+                                    <li>Completa la información:
+                                        <ul>
+                                            <li>Datos personales</li>
+                                            <li>Email corporativo</li>
+                                            <li>Rol del sistema</li>
+                                            <li>Departamento</li>
+                                        </ul>
+                                    </li>
+                                    <li>Asigna permisos específicos</li>
+                                    <li>Envía credenciales por email</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Roles disponibles:</h5>
+                                <div class="list-group">
+                                    <div class="list-group-item">
+                                        <strong>Administrador</strong>
+                                        <small class="d-block text-muted">Acceso completo al sistema</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <strong>Veterinario</strong>
+                                        <small class="d-block text-muted">Gestión de casos médicos</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <strong>Recepcionista</strong>
+                                        <small class="d-block text-muted">Facturación y atención</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <strong>Asistente</strong>
+                                        <small class="d-block text-muted">Funciones básicas</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="mt-4">Configuración del Sistema</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="bi bi-building me-2"></i>Información Clínica
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>• Nombre de la clínica</li>
+                                            <li>• Dirección y teléfono</li>
+                                            <li>• Horarios de atención</li>
+                                            <li>• Logo y colores</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="bi bi-credit-card me-2"></i>Métodos de Pago
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>• Efectivo</li>
+                                            <li>• Tarjetas de crédito</li>
+                                            <li>• Transferencias</li>
+                                            <li>• Cheques</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-warning">
+                                    <div class="card-header bg-warning text-white">
+                                        <i class="bi bi-box me-2"></i>Productos
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>• Añadir productos</li>
+                                            <li>• Actualizar precios</li>
+                                            <li>• Gestionar inventario</li>
+                                            <li>• Categorías</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Reportes -->
+            <section id="reportes" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-graph-up text-primary me-2"></i>
+                            Reportes y Analytics
+                        </h2>
+                        
+                        <h4>Tipos de Reportes Disponibles</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <i class="bi bi-cash-coin me-2"></i>Reportes Financieros
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li><strong>Ingresos diarios:</strong> Ventas por día</li>
+                                            <li><strong>Ingresos mensuales:</strong> Tendencias por mes</li>
+                                            <li><strong>Cuentas por cobrar:</strong> Facturas pendientes</li>
+                                            <li><strong>Métodos de pago:</strong> Análisis por forma de pago</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <i class="bi bi-heart-pulse me-2"></i>Reportes Médicos
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li><strong>Casos por veterinario:</strong> Productividad</li>
+                                            <li><strong>Diagnósticos frecuentes:</strong> Estadísticas médicas</li>
+                                            <li><strong>Tratamientos exitosos:</strong> Tasa de éxito</li>
+                                            <li><strong>Especies atendidas:</strong> Distribución por tipo</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>Cómo Generar Reportes</h4>
+                        <ol class="list-unstyled">
+                            <li class="mb-3">
+                                <span class="step-number">1</span>
+                                <strong>Acceder al módulo:</strong> Ve al menú "Reportes" desde tu dashboard
+                            </li>
+                            <li class="mb-3">
+                                <span class="step-number">2</span>
+                                <strong>Seleccionar tipo:</strong> Elige el tipo de reporte que necesitas
+                            </li>
+                            <li class="mb-3">
+                                <span class="step-number">3</span>
+                                <strong>Configurar filtros:</strong>
+                                <ul class="mt-2">
+                                    <li>Rango de fechas</li>
+                                    <li>Filtros específicos (veterinario, cliente, etc.)</li>
+                                    <li>Formato de salida (pantalla, PDF, Excel)</li>
+                                </ul>
+                            </li>
+                            <li class="mb-3">
+                                <span class="step-number">4</span>
+                                <strong>Generar:</strong> Haz clic en "Generar Reporte"
+                            </li>
+                            <li class="mb-3">
+                                <span class="step-number">5</span>
+                                <strong>Exportar:</strong> Descarga o imprime según necesites
+                            </li>
+                        </ol>
+                        
+                        <div class="alert alert-info-custom">
+                            <h6><i class="bi bi-download me-2"></i>Formatos de exportación</h6>
+                            <p class="mb-0">
+                                Los reportes se pueden exportar en formato PDF para impresión o Excel para análisis adicional.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Problemas Comunes -->
+            <section id="problemas" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-question-circle text-primary me-2"></i>
+                            Problemas Comunes y Soluciones
+                        </h2>
+                        
+                        <div class="accordion" id="problemasAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#problema1">
+                                        <i class="bi bi-key text-danger me-2"></i>No puedo iniciar sesión
+                                    </button>
+                                </h2>
+                                <div id="problema1" class="accordion-collapse collapse show" data-bs-parent="#problemasAccordion">
+                                    <div class="accordion-body">
+                                        <h6>Posibles causas y soluciones:</h6>
+                                        <ul>
+                                            <li><strong>Contraseña incorrecta:</strong> Usa la función "Recuperar contraseña"</li>
+                                            <li><strong>Email incorrecto:</strong> Verifica que el email esté bien escrito</li>
+                                            <li><strong>Cuenta desactivada:</strong> Contacta al administrador</li>
+                                            <li><strong>Problema de navegador:</strong> Borra caché y cookies</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#problema2">
+                                        <i class="bi bi-wifi text-warning me-2"></i>El sistema va lento
+                                    </button>
+                                </h2>
+                                <div id="problema2" class="accordion-collapse collapse" data-bs-parent="#problemasAccordion">
+                                    <div class="accordion-body">
+                                        <h6>Soluciones para mejorar el rendimiento:</h6>
+                                        <ul>
+                                            <li><strong>Verificar conexión:</strong> Asegúrate de tener buena conexión a internet</li>
+                                            <li><strong>Cerrar pestañas:</strong> Cierra otras pestañas del navegador</li>
+                                            <li><strong>Actualizar navegador:</strong> Usa la versión más reciente</li>
+                                            <li><strong>Reiniciar sesión:</strong> Cierra y vuelve a abrir el sistema</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#problema3">
+                                        <i class="bi bi-exclamation-triangle text-info me-2"></i>No puedo acceder a una función
+                                    </button>
+                                </h2>
+                                <div id="problema3" class="accordion-collapse collapse" data-bs-parent="#problemasAccordion">
+                                    <div class="accordion-body">
+                                        <h6>Verificar permisos de usuario:</h6>
+                                        <ul>
+                                            <li><strong>Revisar rol:</strong> Confirma que tu rol tenga acceso a esa función</li>
+                                            <li><strong>Permisos específicos:</strong> El administrador debe haber asignado el permiso</li>
+                                            <li><strong>Función en desarrollo:</strong> Algunas funciones pueden estar en construcción</li>
+                                            <li><strong>Contactar admin:</strong> Solicita al administrador los permisos necesarios</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#problema4">
+                                        <i class="bi bi-bug text-success me-2"></i>Encontré un error en el sistema
+                                    </button>
+                                </h2>
+                                <div id="problema4" class="accordion-collapse collapse" data-bs-parent="#problemasAccordion">
+                                    <div class="accordion-body">
+                                        <h6>Reportar errores:</h6>
+                                        <ol>
+                                            <li><strong>Documenta el error:</strong> Toma captura de pantalla</li>
+                                            <li><strong>Describe los pasos:</strong> Explica cómo ocurrió el error</li>
+                                            <li><strong>Información del navegador:</strong> Menciona qué navegador usas</li>
+                                            <li><strong>Contacta soporte:</strong> Envía la información al equipo técnico</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Contacto y Soporte -->
+            <section id="contacto" class="mb-5">
+                <div class="section-card card">
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            <i class="bi bi-envelope text-primary me-2"></i>
+                            Contacto y Soporte
+                        </h2>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Información de Contacto</h4>
+                                <div class="list-group">
+                                    <div class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-envelope-fill text-primary me-3"></i>
+                                        <div>
+                                            <strong>Soporte Técnico</strong>
+                                            <small class="d-block text-muted">soporte@vet360.com</small>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-telephone-fill text-success me-3"></i>
+                                        <div>
+                                            <strong>Teléfono de Soporte</strong>
+                                            <small class="d-block text-muted">+57 (300) 123-4567</small>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-chat-dots-fill text-info me-3"></i>
+                                        <div>
+                                            <strong>Chat en Vivo</strong>
+                                            <small class="d-block text-muted">Disponible en horario laboral</small>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-globe text-warning me-3"></i>
+                                        <div>
+                                            <strong>Documentación Online</strong>
+                                            <small class="d-block text-muted">docs.vet360.com</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Horarios de Atención</h4>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <table class="table table-borderless">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Lunes - Viernes:</strong></td>
+                                                    <td>8:00 AM - 6:00 PM</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Sábados:</strong></td>
+                                                    <td>9:00 AM - 1:00 PM</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Domingos:</strong></td>
+                                                    <td>Cerrado</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Emergencias:</strong></td>
+                                                    <td>24/7 (solo críticos)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success-custom mt-3">
+                                    <h6><i class="bi bi-clock me-2"></i>Tiempo de respuesta</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>Email:</strong> 24-48 horas</li>
+                                        <li><strong>Chat/Teléfono:</strong> Inmediato</li>
+                                        <li><strong>Emergencias:</strong> Máximo 2 horas</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <h5>¿Te gusta VET360?</h5>
+                            <p class="text-muted">Tu opinión es importante para nosotros</p>
+                            <button class="btn btn-primary me-2">
+                                <i class="bi bi-star me-2"></i>Calificar Sistema
+                            </button>
+                            <button class="btn btn-outline-primary">
+                                <i class="bi bi-chat-quote me-2"></i>Enviar Sugerencia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Botón volver arriba -->
+<button class="back-to-top btn" id="backToTop">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Cargar navbar
+fetch('navbar.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('navbar-container').innerHTML = data;
+    });
+
+// Smooth scrolling para enlaces internos
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Actualizar enlace activo
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            this.classList.add('active');
+        }
+    });
+});
+
+// Mostrar/ocultar botón volver arriba
+const backToTopButton = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+        backToTopButton.style.display = 'block';
+    } else {
+        backToTopButton.style.display = 'none';
+    }
+});
+
+// Volver arriba suavemente
+backToTopButton.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// Activar enlace basado en scroll
+window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.pageYOffset >= sectionTop) {
+            current = section.getAttribute('id');
+        }
+    });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Mensaje de bienvenida
+console.log(`
+🐾 VET360 Manual de Usuario
+📚 Manual interactivo cargado exitosamente
+🎯 Navega por las secciones usando el menú lateral
+💡 Usa Ctrl+F para buscar información específica
+`);
+</script>
+
+</body>
+</html>

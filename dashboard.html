@@ -374,7 +374,7 @@
                     userProfile.firstName = 'Michelle';
                     // Actualizar en la base de datos
                     await update(userRef, { firstName: 'Michelle' });
-                    console.log('Nombre corregido automáticamente: Michel → Michelle');
+                    console.log('Nombre corregido automáticamente: Michelle → Michelle');
                 }
                 
                 return userProfile;
@@ -408,6 +408,8 @@
     // Crear menú de accesos rápidos
     function createQuickAccessMenu(menuItems) {
         quickAccessMenu.innerHTML = '';
+        
+        // Agregar elementos del menú por rol
         menuItems.forEach(item => {
             const menuCard = `
                 <div class="col">
@@ -425,6 +427,23 @@
             `;
             quickAccessMenu.innerHTML += menuCard;
         });
+        
+        // Agregar siempre el Manual de Usuario al final
+        const manualCard = `
+            <div class="col">
+                <div class="card grid-item border-dark shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-book-fill text-dark fs-1 mb-3"></i>
+                        <h4 class="card-title text-dark">Manual de Usuario</h4>
+                        <p class="card-text text-muted mb-3">Guía completa del sistema VET360</p>
+                        <a href="manual-usuario.html" class="btn btn-dark btn-lg w-100">
+                            <i class="bi bi-book me-2"></i>Ver Manual
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        quickAccessMenu.innerHTML += manualCard;
     }
 
     // Mostrar vista según rol

@@ -57,6 +57,13 @@ VET360 es un sistema completo de gestión veterinaria que incluye autenticación
 - **Categorías**: Alimentos, Medicamentos, Accesorios, Juguetes, Higiene, Camas
 - **Búsqueda y Filtros**: Fácil navegación de productos
 
+### 5. Manual de Usuario (`manual-usuario.html`) ⭐ NUEVO
+- **Guía Interactiva**: Manual completo integrado en el sistema
+- **Navegación por Secciones**: Acceso rápido a información específica
+- **Ejemplos Prácticos**: Casos de uso paso a paso
+- **Disponible para Todos**: Accesible desde navbar y dashboard
+- **Búsqueda Integrada**: Encuentra información rápidamente
+
 ## 🛠️ Arquitectura Técnica
 
 ### Frontend:
@@ -131,6 +138,9 @@ VET360/
 - [x] Tienda e-commerce completa
 - [x] Diseño responsivo y accesible
 - [x] Limpieza de estilos inline
+- [x] Manual de usuario integrado ⭐ NUEVO
+- [x] Navegación mejorada con acceso al manual
+- [x] Documentación completa del sistema
 
 ### 🔧 Próximas Mejoras Sugeridas:
 - [ ] Integración de pagos real (Stripe/PayPal)

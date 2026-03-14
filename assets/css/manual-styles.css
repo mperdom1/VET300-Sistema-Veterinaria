@@ -1,0 +1,283 @@
+/* Manual de Usuario VET360 - Estilos Adicionales */
+
+/* Animaciones suaves */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Logo de VET360 en navbar */
+.navbar-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Animaciones para las secciones */
+.section-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.manual-sidebar .nav-link {
+    animation: slideInLeft 0.3s ease-out;
+}
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 768px) {
+    .manual-sidebar {
+        position: relative;
+        min-height: auto;
+    }
+    
+    .manual-content {
+        padding: 15px;
+    }
+    
+    .section-card {
+        margin-bottom: 15px;
+    }
+    
+    .step-number {
+        width: 25px;
+        height: 25px;
+        font-size: 0.8rem;
+    }
+    
+    .feature-icon {
+        font-size: 2rem;
+    }
+    
+    .screenshot-placeholder {
+        padding: 20px;
+        margin: 10px 0;
+    }
+}
+
+/* Impresión */
+@media print {
+    .manual-sidebar,
+    .back-to-top,
+    #navbar-container {
+        display: none !important;
+    }
+    
+    .manual-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .section-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .alert-info-custom,
+    .alert-success-custom,
+    .alert-warning-custom {
+        border: 1px solid #ddd;
+        background: #f8f9fa !important;
+    }
+}
+
+/* Accesibilidad */
+.nav-link:focus,
+.btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Mejoras para el scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Hover effects para tarjetas */
+.section-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(3px);
+    transition: all 0.2s ease;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Destacar contenido importante */
+.highlight {
+    background: linear-gradient(120deg, #f6d55c 0%, #f6d55c 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 0.2em;
+    background-position: 0 88%;
+    padding: 0 2px;
+}
+
+/* Iconos con pulso */
+.pulse-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Navegación breadcrumb personalizada */
+.breadcrumb-custom {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.breadcrumb-custom .breadcrumb-item {
+    color: #6c757d;
+}
+
+.breadcrumb-custom .breadcrumb-item.active {
+    color: #667eea;
+    font-weight: 500;
+}
+
+/* Tooltips personalizados */
+.tooltip-custom {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip-custom:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1000;
+    font-size: 0.8rem;
+}
+
+/* Código con syntax highlighting básico */
+.code-block .keyword {
+    color: #d73a49;
+    font-weight: bold;
+}
+
+.code-block .string {
+    color: #032f62;
+}
+
+.code-block .comment {
+    color: #6a737d;
+    font-style: italic;
+}
+
+/* Progress bar personalizada */
+.progress-custom {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-custom .progress-bar {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.6s ease;
+}
+
+/* Sticky navigation en sidebar */
+@media (min-width: 992px) {
+    .manual-sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+}
+
+/* Iconos de diferentes tamaños - corrigiendo CSS inline */
+.large-icon-primary {
+    font-size: 5rem;
+    color: #667eea;
+}
+
+.medium-icon {
+    font-size: 3rem;
+}
+
+.status-icon {
+    font-size: 2rem;
+}
+
+/* Mejoras adicionales para el manual */
+.manual-sidebar .nav-link {
+    position: relative;
+}
+
+.manual-sidebar .nav-link::before {
+    content: '';
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: white;
+    transition: height 0.3s ease;
+}
+
+.manual-sidebar .nav-link.active::before,
+.manual-sidebar .nav-link:hover::before {
+    height: 70%;
+}
